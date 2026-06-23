@@ -1,0 +1,23 @@
+# Configuración específica de JetBrains Rider
+.idea/
+*.sln.iml
+
+# Resultados de compilación
+[Dd]ebug/
+[Rr]elease/
+x64/
+[Bb]in/
+[Oo]bj/
+
+# Paquetes y dependencias (se restauran solos)
+**/packages/
+!**/packages/build/
+*.nupkg
+
+# Archivos de usuario y temporales
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+TestResults/
