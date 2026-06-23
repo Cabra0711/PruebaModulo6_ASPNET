@@ -29,11 +29,26 @@ services:
       - "8080:8080"
     environment:
       ConnectionStrings__MySqlConnection: "Server=db;Port=3306;Database=RentingBooking;User=appuser;Password=apppass123;"
-      SecretKey: "super-secret-jwt-key-change-in-production-min32chars!"
+      JwtSettings__SecretKey: "K9x!pQ7@Lm2#vT8$zR6&yH1*eF5!cN9@uJ3$wD8#sA7"
       ASPNETCORE_ENVIRONMENT: Development
+      N8nSettings__BaseUrl: "https://cabra0711.app.n8n.cloud/webhook/email-send"
     depends_on:
       db:
         condition: service_healthy
 
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: rentingbooking_n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - WEBHOOK_URL=https://cabra0711.app.n8n.cloud/webhook/email-send
+    volumes:
+      - n8n_data:/home/node/.n8n
+
 volumes:
   mysql_data:
+  n8n_data:

@@ -7,6 +7,7 @@ using RentingBooking.Service.Interfaces;
 
 namespace RentingBooking.Controllers;
 
+[ApiController]
 [Route("BookingRenting")]
 public class AuthController : Controller
 {
@@ -90,7 +91,7 @@ public class AuthController : Controller
             return View("Login", user);         
         }     
     }
-    
+    [HttpPost("RegisterOwner")]
     public async Task<IActionResult> RegisterOwner(User user)     
     {         
         var validator = new Validators.UserValidator();         
@@ -104,7 +105,7 @@ public class AuthController : Controller
         
         try         
         {             
-            var response = await _authService.RegisterCustomer(user);             
+            var response = await _authService.RegisterOwner(user);             
             if (response.Success)             
             {                 
                 ViewBag.Success = "¡Account Created! User created successfully now you can Sign In";                 
@@ -130,7 +131,7 @@ public class AuthController : Controller
     [HttpGet]
     public async Task<IActionResult> Logout()
     {
-        HttpContext.Session.Remove("JWTToken");
+        HttpContext.Session.Remove("Token");
         return RedirectToAction("Login", "Auth");
     }
 }

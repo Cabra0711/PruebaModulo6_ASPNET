@@ -49,6 +49,7 @@ public class AuthService : IAuthService
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
+                    new Claim(ClaimTypes.NameIdentifier, userExist.Id.ToString()),
                     new Claim(ClaimTypes.Name, userExist.Username),
                     new Claim(ClaimTypes.Role, userExist.Role.ToString()),
                 }),

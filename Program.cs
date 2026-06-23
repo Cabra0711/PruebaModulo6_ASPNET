@@ -3,24 +3,39 @@ using Microsoft.EntityFrameworkCore;
 using RentingBooking.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 using RentingBooking.Service;
 using RentingBooking.Service.Interfaces;
+using RentingBooking.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
+
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<UserValidator>();
+builder.Services.AddSession();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.Configure<N8nSettings>(
+    builder.Configuration.GetSection("N8nSettings")
+);
+
+builder.Services.AddHttpClient<INotificationService, NotificationService>();
+
+builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo 
-    { 
-        Title = "LogisticMVP API", 
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Prueba Desempeño API",
         Version = "v1",
-        Description = "Backend del MVP de Logística - Entorno de Pruebas"
+        Description = "Backend MVP Booking - Pruebas"
     });
-    
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -28,35 +43,63 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "super-secret-jwt-key-change-in-production-min32chars!"
+        Description = "Escribe: Bearer {token}"
     });
 
-
-    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>(Array.Empty<string>())
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 
 var connectionString = builder.Configuration.GetConnectionString("MySqlConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options => 
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+if (string.IsNullOrWhiteSpace(connectionString))
+    throw new Exception("MySqlConnection no está configurada");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+);
+
+
 var secretKey = builder.Configuration["JwtSettings:SecretKey"];
+
+if (string.IsNullOrWhiteSpace(secretKey))
+    throw new Exception("JwtSettings:SecretKey no está configurada");
+
+var key = Encoding.UTF8.GetBytes(secretKey);
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
+})
+.AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+
         ValidateIssuer = false,
         ValidateAudience = false,
+
         ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
     };
 });
+
+
 
 var app = builder.Build();
 
@@ -67,28 +110,27 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+else
 {
-    
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
+// Controllers (API/MVC)
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
+
 
 
 app.Run();
