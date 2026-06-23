@@ -1,6 +1,6 @@
 namespace RentingBooking.Enum;
 
-public enum NotificationStatus
+public enum NotificationEvent
 {
     BookingConfirmed,
     BookingCancelled,

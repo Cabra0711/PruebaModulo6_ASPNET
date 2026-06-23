@@ -1,0 +1,39 @@
+services:
+
+  db:
+    image: mysql:8.4
+    container_name: rentingbooking_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: RentingBooking
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot1234"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./RentingBooking
+      dockerfile: Dockerfile
+    container_name: rentingbooking_api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__MySqlConnection: "Server=db;Port=3306;Database=RentingBooking;User=appuser;Password=apppass123;"
+      SecretKey: "super-secret-jwt-key-change-in-production-min32chars!"
+      ASPNETCORE_ENVIRONMENT: Development
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

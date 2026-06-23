@@ -1,6 +1,8 @@
 namespace RentingBooking.Enum;
 
-public class KycStatus
+public enum KycStatus
 {
-    
+    Pending,
+    Accepted,
+    Rejected,
 }

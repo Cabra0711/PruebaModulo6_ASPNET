@@ -1,6 +1,8 @@
 namespace RentingBooking.Enum;
 
-public class UserRole
+public enum UserRole
 {
-    
+    Admin,
+    User,
+    Owner
 }
