@@ -1,3 +1,4 @@
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using RentingBooking.Enum;
 
 namespace RentingBooking.Models;
@@ -10,7 +11,7 @@ public class User : BaseEntity
     public string PasswordHash { get; set; } = null!;
     public UserRole Role { get; set; } = UserRole.User;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+    public string? Token { get; set; }
  
     public virtual KycVerification? KycVerification { get; set; }
     public virtual ICollection<Property> Properties { get; set; } = new List<Property>();

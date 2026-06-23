@@ -27,6 +27,7 @@ public class ApplicationDbContext : DbContext
             e.Property(u => u.Email).IsRequired().HasMaxLength(200);
             e.Property(u => u.PasswordHash).IsRequired();
             e.Property(u => u.Role).HasConversion<string>();
+            e.Ignore(u => u.Token);
         });
 
         // ── KycVerification — 1:1 con User ────────────────────────────────────
