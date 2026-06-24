@@ -2,6 +2,18 @@
 
 @{
     ViewData["Title"] = "Dashboard Usuario";
+}
+
+@if (Model == null)
+{
+    <div class="mx-auto max-w-3xl px-4 py-8 text-center">
+        <p class="text-slate-600">No se pudo cargar la información del usuario.</p>
+        <a asp-controller="Auth" asp-action="Login" class="mt-4 inline-flex rounded-full bg-[#b41531] px-6 py-2 text-sm font-semibold text-white">Iniciar sesión</a>
+    </div>
+    return;
+}
+
+@{
     var totalBookings = Model.Bookings?.Count() ?? 0;
     var activeBookings = Model.Bookings?.Count(b => b.CheckOutDate >= DateOnly.FromDateTime(DateTime.Today)) ?? 0;
     var totalInvested = Model.Bookings?.Sum(b => b.TotalPrice) ?? 0m;
