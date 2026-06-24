@@ -1,0 +1,46 @@
+@model RentingBooking.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mb-6">
+        <a asp-controller="Owner" asp-action="OwnerLanding" class="text-sm text-slate-600 hover:text-[#b41531] transition">&larr; Volver</a>
+        <h1 class="mt-2 text-3xl font-bold text-slate-950">Dashboard de rendimiento</h1>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-3 mb-8">
+        <div class="rounded-[28px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+            <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Total reservas</p>
+            <p class="mt-3 text-3xl font-bold text-slate-950">@Model.TotalBookings</p>
+        </div>
+        <div class="rounded-[28px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+            <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Ingresos totales</p>
+            <p class="mt-3 text-3xl font-bold text-slate-950">@Model.TotalRevenue.ToString("C")</p>
+        </div>
+        <div class="rounded-[28px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+            <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Ocupación</p>
+            <p class="mt-3 text-3xl font-bold text-slate-950">@Model.OccupancyRate.ToString("F1")%</p>
+        </div>
+    </div>
+
+    @if (Model.RecentBookings.Any())
+    {
+        <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-bold text-slate-950 mb-4">Reservas recientes</h2>
+            <div class="space-y-4">
+                @foreach (var booking in Model.RecentBookings.Take(5))
+                {
+                    <div class="border-t border-[#f4d7dc] pt-4 flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-slate-950">@booking.Property?.Title</p>
+                            <p class="text-sm text-slate-600">@booking.CheckInDate - @booking.CheckOutDate</p>
+                        </div>
+                        <span class="text-sm font-semibold text-[#b41531]">@booking.TotalPrice.ToString("C")</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

@@ -241,36 +241,6 @@
         }
     </main>
 
-    <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 border-t border-[#f4d7dc] bg-white shadow-2xl md:hidden">
-        <div class="flex items-center justify-around px-4 py-3">
-            <a href="#" class="flex flex-col items-center gap-1 text-slate-600 transition hover:text-[#b41531]">
-                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M15.5 1H4C2.34 1 1 2.34 1 4V20C1 21.66 2.34 23 4 23H20C21.66 23 23 21.66 23 20V8.5L15.5 1ZM12 19C10.34 19 9 17.66 9 16C9 14.34 10.34 13 12 13C13.66 13 15 14.34 15 16C15 17.66 13.66 19 12 19ZM18 9H4V4H18V9Z" />
-                </svg>
-                <span class="text-xs">Buscar</span>
-            </a>
-            <a href="#" class="flex flex-col items-center gap-1 text-slate-600 transition hover:text-[#b41531]">
-                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" />
-                </svg>
-                <span class="text-xs">Deseados</span>
-            </a>
-            <a asp-controller="User" asp-action="MyBookings" class="flex flex-col items-center gap-1 text-[#b41531] transition hover:text-[#991a30]">
-                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V12H17V17Z" />
-                </svg>
-                <span class="text-xs">Reservas</span>
-            </a>
-            <a asp-controller="User" asp-action="Profile" class="flex flex-col items-center gap-1 text-slate-600 transition hover:text-[#b41531]">
-                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 12C13.1 12 14 11.1 14 10C14 8.9 13.1 8 12 8C10.9 8 10 8.9 10 10C10 11.1 10.9 12 12 12ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" />
-                </svg>
-                <span class="text-xs">Perfil</span>
-            </a>
-        </div>
-    </nav>
-
     <!-- Footer -->
     <footer class="border-t border-[#f4d7dc] bg-[#fff4f5] py-8 px-4 text-center text-sm text-slate-600 sm:px-6 lg:px-8 mb-20 md:mb-0">
         <div class="mx-auto max-w-7xl">

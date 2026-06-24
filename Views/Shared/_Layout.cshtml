@@ -1,20 +1,185 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - RentingBooking</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/RentingBooking.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+<body class="bg-[#fff4f5] text-slate-900 antialiased">
+    @{
+        var isAuth = User.Identity?.IsAuthenticated == true;
+        var isUser = isAuth && User.IsInRole("User");
+        var isOwner = isAuth && User.IsInRole("Owner");
+        var isAdmin = isAuth && User.IsInRole("Admin");
+        var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+        var action = ViewContext.RouteData.Values["action"]?.ToString();
+    }
+
+    <nav class="border-b border-[#f4d7dc] bg-white/90 shadow-sm sticky top-0 z-50 backdrop-blur">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+            <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 text-[#b41531] font-semibold">
+                <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[#fde3e8] text-lg">♥</span>
+                <span class="hidden sm:inline">RentingBooking</span>
+            </a>
+
+            <div class="hidden items-center gap-5 text-sm font-medium sm:flex">
+                @if (!isAuth)
+                {
+                    <a asp-controller="Home" asp-action="Index" class="text-slate-600 hover:text-[#b41531] transition">Inicio</a>
+                    <a asp-controller="Property" asp-action="GetPublicProperties" class="text-slate-600 hover:text-[#b41531] transition">Explorar</a>
+                    <a asp-controller="Auth" asp-action="Login" class="rounded-full bg-[#b41531] px-5 py-2 text-white font-semibold hover:bg-[#991a30] transition">Iniciar sesión</a>
+                }
+                else if (isUser)
+                {
+                    <a asp-controller="Property" asp-action="GetPublicProperties" class="text-slate-600 hover:text-[#b41531] transition">Explorar</a>
+                    <a asp-controller="User" asp-action="MyBookings" class="text-slate-600 hover:text-[#b41531] transition">Mis reservas</a>
+                    <a asp-controller="Wishlist" asp-action="Index" class="text-slate-600 hover:text-[#b41531] transition">Wishlist</a>
+                    <a asp-controller="User" asp-action="UserLanding" class="text-slate-600 hover:text-[#b41531] transition">Mi perfil</a>
+                    <a asp-controller="Auth" asp-action="Logout" class="text-slate-600 hover:text-[#b41531] transition">Salir</a>
+                }
+                else if (isOwner)
+                {
+                    <a asp-controller="Owner" asp-action="OwnerLanding" class="text-slate-600 hover:text-[#b41531] transition">Mis propiedades</a>
+                    <a asp-controller="Owner" asp-action="OwnerDashboard" class="text-slate-600 hover:text-[#b41531] transition">Dashboard</a>
+                    <a asp-controller="Property" asp-action="CreateProperty" class="text-slate-600 hover:text-[#b41531] transition">Publicar</a>
+                    <a asp-controller="Auth" asp-action="Logout" class="text-slate-600 hover:text-[#b41531] transition">Salir</a>
+                }
+                else if (isAdmin)
+                {
+                    <a asp-controller="Admin" asp-action="Admin" class="text-slate-600 hover:text-[#b41531] transition">Panel Admin</a>
+                    <a asp-controller="Auth" asp-action="Logout" class="text-slate-600 hover:text-[#b41531] transition">Salir</a>
+                }
+            </div>
+
+            <button id="mobile-menu-btn" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#fde3e8] text-[#b41531] sm:hidden">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="hidden border-t border-[#f4d7dc] bg-white px-4 py-3 space-y-2 text-sm font-medium sm:hidden">
+            @if (!isAuth)
+            {
+                <a asp-controller="Home" asp-action="Index" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8] hover:text-[#b41531]">Inicio</a>
+                <a asp-controller="Property" asp-action="GetPublicProperties" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8] hover:text-[#b41531]">Explorar</a>
+                <a asp-controller="Auth" asp-action="Login" class="block rounded-lg px-3 py-2 text-[#b41531] font-semibold hover:bg-[#fde3e8]">Iniciar sesión</a>
+            }
+            else if (isUser)
+            {
+                <a asp-controller="Property" asp-action="GetPublicProperties" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8] hover:text-[#b41531]">Explorar</a>
+                <a asp-controller="User" asp-action="MyBookings" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8] hover:text-[#b41531]">Mis reservas</a>
+                <a asp-controller="Wishlist" asp-action="Index" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8] hover:text-[#b41531]">Wishlist</a>
+                <a asp-controller="User" asp-action="UserLanding" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8] hover:text-[#b41531]">Mi perfil</a>
+                <a asp-controller="Auth" asp-action="Logout" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8]">Salir</a>
+            }
+            else if (isOwner)
+            {
+                <a asp-controller="Owner" asp-action="OwnerLanding" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8] hover:text-[#b41531]">Mis propiedades</a>
+                <a asp-controller="Owner" asp-action="OwnerDashboard" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8] hover:text-[#b41531]">Dashboard</a>
+                <a asp-controller="Property" asp-action="CreateProperty" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8] hover:text-[#b41531]">Publicar</a>
+                <a asp-controller="Auth" asp-action="Logout" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8]">Salir</a>
+            }
+            else if (isAdmin)
+            {
+                <a asp-controller="Admin" asp-action="Admin" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8] hover:text-[#b41531]">Panel Admin</a>
+                <a asp-controller="Auth" asp-action="Logout" class="block rounded-lg px-3 py-2 text-slate-600 hover:bg-[#fde3e8]">Salir</a>
+            }
+        </div>
+    </nav>
+
+    <main class="pb-20 md:pb-0">
+        @RenderBody()
+    </main>
+
+    @if (isAuth)
+    {
+        <nav class="fixed bottom-0 left-0 right-0 border-t border-[#f4d7dc] bg-white shadow-2xl md:hidden z-50">
+            <div class="flex items-center justify-around px-4 py-3">
+                @if (isUser)
+                {
+                    <a asp-controller="Property" asp-action="GetPublicProperties" class="flex flex-col items-center gap-1 transition @(controller == "Property" && action == "GetPublicProperties" ? "text-[#b41531]" : "text-slate-600 hover:text-[#b41531]")">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.5 1H4C2.34 1 1 2.34 1 4V20C1 21.66 2.34 23 4 23H20C21.66 23 23 21.66 23 20V8.5L15.5 1ZM12 19C10.34 19 9 17.66 9 16C9 14.34 10.34 13 12 13C13.66 13 15 14.34 15 16C15 17.66 13.66 19 12 19ZM18 9H4V4H18V9Z" />
+                        </svg>
+                        <span class="text-xs">Explorar</span>
+                    </a>
+                    <a asp-controller="Wishlist" asp-action="Index" class="flex flex-col items-center gap-1 transition @(controller == "Wishlist" ? "text-[#b41531]" : "text-slate-600 hover:text-[#b41531]")">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" />
+                        </svg>
+                        <span class="text-xs">Wishlist</span>
+                    </a>
+                    <a asp-controller="User" asp-action="MyBookings" class="flex flex-col items-center gap-1 transition @(controller == "User" && action == "MyBookings" ? "text-[#b41531]" : "text-slate-600 hover:text-[#b41531]")">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V12H17V17Z" />
+                        </svg>
+                        <span class="text-xs">Bookings</span>
+                    </a>
+                    <a asp-controller="User" asp-action="Profile" class="flex flex-col items-center gap-1 transition @(controller == "User" && action == "Profile" ? "text-[#b41531]" : "text-slate-600 hover:text-[#b41531]")">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12C13.1 12 14 11.1 14 10C14 8.9 13.1 8 12 8C10.9 8 10 8.9 10 10C10 11.1 10.9 12 12 12ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" />
+                        </svg>
+                        <span class="text-xs">Perfil</span>
+                    </a>
+                }
+                else if (isOwner)
+                {
+                    <a asp-controller="Owner" asp-action="OwnerLanding" class="flex flex-col items-center gap-1 transition @(controller == "Owner" && action == "OwnerLanding" ? "text-[#b41531]" : "text-slate-600 hover:text-[#b41531]")">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 9L12 2L21 9V20C21 21.1 20.1 22 19 22H5C3.9 22 3 21.1 3 20V9Z" />
+                        </svg>
+                        <span class="text-xs">Propiedades</span>
+                    </a>
+                    <a asp-controller="Owner" asp-action="OwnerDashboard" class="flex flex-col items-center gap-1 transition @(controller == "Owner" && action == "OwnerDashboard" ? "text-[#b41531]" : "text-slate-600 hover:text-[#b41531]")">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 13H11V3H3V13ZM13 21H21V11H13V21ZM13 3V9H21V3H13ZM3 15H9V21H3V15Z" />
+                        </svg>
+                        <span class="text-xs">Dashboard</span>
+                    </a>
+                    <a asp-controller="Property" asp-action="CreateProperty" class="flex flex-col items-center gap-1 transition @(controller == "Property" && action == "CreateProperty" ? "text-[#b41531]" : "text-slate-600 hover:text-[#b41531]")">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                        </svg>
+                        <span class="text-xs">Publicar</span>
+                    </a>
+                    <a asp-controller="User" asp-action="Profile" class="flex flex-col items-center gap-1 transition @(controller == "User" && action == "Profile" ? "text-[#b41531]" : "text-slate-600 hover:text-[#b41531]")">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12C13.1 12 14 11.1 14 10C14 8.9 13.1 8 12 8C10.9 8 10 8.9 10 10C10 11.1 10.9 12 12 12ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" />
+                        </svg>
+                        <span class="text-xs">Perfil</span>
+                    </a>
+                }
+                else if (isAdmin)
+                {
+                    <a asp-controller="Admin" asp-action="Admin" class="flex flex-col items-center gap-1 transition @(controller == "Admin" ? "text-[#b41531]" : "text-slate-600 hover:text-[#b41531]")">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12C13.1 12 14 11.1 14 10C14 8.9 13.1 8 12 8C10.9 8 10 8.9 10 10C10 11.1 10.9 12 12 12ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" />
+                        </svg>
+                        <span class="text-xs">Admin</span>
+                    </a>
+                }
+            </div>
+        </nav>
+    }
+
+    <footer class="border-t border-[#f4d7dc] bg-[#fff4f5] py-6 px-4 text-center text-sm text-slate-600">
+        <div class="mx-auto max-w-7xl">
+            <p class="font-semibold text-[#b41531]">RentingBooking</p>
+            <p class="mt-1">© 2026 RentingBooking Inc.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+            var menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+    </script>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

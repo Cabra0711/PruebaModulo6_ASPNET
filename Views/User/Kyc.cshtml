@@ -1,0 +1,64 @@
+@model RentingBooking.Models.User
+
+@{
+    ViewData["Title"] = "Verificación KYC";
+    var kyc = Model.KycVerification;
+    var status = kyc?.Status ?? RentingBooking.Enum.KycStatus.Pending;
+}
+
+<div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-950">Verificación de identidad</h1>
+        <p class="mt-2 text-slate-600">Completa tu verificación para poder reservar propiedades.</p>
+    </div>
+
+    <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm sm:p-8">
+        @if (status == RentingBooking.Enum.KycStatus.Accepted)
+        {
+            <div class="text-center py-8">
+                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-[#f0f7ef] text-[#1f7a43]">
+                    <svg class="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                    </svg>
+                </div>
+                <h2 class="mt-4 text-xl font-bold text-slate-950">Identidad verificada</h2>
+                <p class="mt-2 text-sm text-slate-600">Ya puedes reservar propiedades sin restricciones.</p>
+                <a asp-controller="Property" asp-action="GetPublicProperties" class="mt-6 inline-flex rounded-full bg-[#b41531] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#991a30]">
+                    Explorar propiedades
+                </a>
+            </div>
+        }
+        else if (status == RentingBooking.Enum.KycStatus.Rejected)
+        {
+            <div class="text-center py-8">
+                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-[#fff1f3] text-[#b41531]">
+                    <svg class="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
+                </div>
+                <h2 class="mt-4 text-xl font-bold text-slate-950">Verificación rechazada</h2>
+                <p class="mt-2 text-sm text-slate-600">Motivo: @(kyc?.RejectionReason ?? "No especificado")</p>
+                <p class="mt-2 text-sm text-slate-600">Vuelve a intentar el proceso de verificación.</p>
+                <a asp-controller="User" asp-action="UserLanding" class="mt-6 inline-flex rounded-full bg-[#b41531] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#991a30]">
+                    Volver al dashboard
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-8">
+                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-[#fff7e8] text-[#b45309]">
+                    <svg class="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                    </svg>
+                </div>
+                <h2 class="mt-4 text-xl font-bold text-slate-950">Verificación pendiente</h2>
+                <p class="mt-2 text-sm text-slate-600">Tu solicitud de verificación está siendo revisada.</p>
+                <p class="mt-2 text-sm text-slate-600">Este proceso puede tomar hasta 24 horas hábiles.</p>
+                <a asp-controller="User" asp-action="UserLanding" class="mt-6 inline-flex rounded-full bg-[#b41531] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#991a30]">
+                    Volver al dashboard
+                </a>
+            </div>
+        }
+    </div>
+</div>

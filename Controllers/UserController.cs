@@ -44,6 +44,40 @@ public class UserController : Controller
         return View(response.Data);
     }
 
+    [HttpGet("Profile")]
+    public async Task<IActionResult> Profile()
+    {
+        var userId = GetUserIdFromToken();
+        if (userId == Guid.Empty)
+            return RedirectToAction("Login", "Auth");
+
+        var response = await _userService.GetUserByIdAsync(userId);
+        if (!response.Success)
+        {
+            TempData["ErrorMessage"] = response.Message;
+            return RedirectToAction("Login", "Auth");
+        }
+
+        return View(response.Data);
+    }
+
+    [HttpGet("Kyc")]
+    public async Task<IActionResult> Kyc()
+    {
+        var userId = GetUserIdFromToken();
+        if (userId == Guid.Empty)
+            return RedirectToAction("Login", "Auth");
+
+        var response = await _userService.GetUserByIdAsync(userId);
+        if (!response.Success)
+        {
+            TempData["ErrorMessage"] = response.Message;
+            return RedirectToAction("Login", "Auth");
+        }
+
+        return View(response.Data);
+    }
+
     private Guid GetUserIdFromToken()
     {
         var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -1,0 +1,45 @@
+@model RentingBooking.Models.User
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-950">Mi Perfil</h1>
+        <p class="mt-2 text-slate-600">Información de tu cuenta.</p>
+    </div>
+
+    <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm sm:p-8">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#b41531] text-2xl font-bold text-white">
+                @Model.Username?.FirstOrDefault().ToString().ToUpper() ?? "U"
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-slate-950">@Model.Username</h2>
+                <p class="text-sm text-slate-600">@Model.Email</p>
+            </div>
+        </div>
+
+        <div class="border-t border-[#f4d7dc] pt-6 space-y-4">
+            <div class="flex justify-between py-3">
+                <span class="text-sm font-medium text-slate-600">Usuario</span>
+                <span class="text-sm text-slate-950">@Model.Username</span>
+            </div>
+            <div class="flex justify-between py-3 border-t border-[#f4d7dc]">
+                <span class="text-sm font-medium text-slate-600">Email</span>
+                <span class="text-sm text-slate-950">@Model.Email</span>
+            </div>
+            <div class="flex justify-between py-3 border-t border-[#f4d7dc]">
+                <span class="text-sm font-medium text-slate-600">Rol</span>
+                <span class="text-sm text-slate-950">@Model.Role</span>
+            </div>
+        </div>
+
+        <div class="mt-8 flex gap-3">
+            <a asp-controller="User" asp-action="UserLanding" class="rounded-full border border-slate-300 px-6 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#b41531] hover:text-[#b41531]">
+                Volver al dashboard
+            </a>
+        </div>
+    </div>
+</div>
