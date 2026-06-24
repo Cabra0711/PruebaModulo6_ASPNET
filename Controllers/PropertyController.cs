@@ -52,7 +52,7 @@ public class PropertyController : Controller
     [HttpGet("create")]
     public IActionResult CreateProperty()
     {
-        return View();
+        return View(new Property());
     }
 
 

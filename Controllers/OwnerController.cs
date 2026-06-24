@@ -51,7 +51,7 @@ public class OwnerController : Controller
             return RedirectToAction("Login", "Auth");
         }
 
-        return View(user);
+        return View(user.Data);
     }
 
     [HttpGet("Dashboard")]
