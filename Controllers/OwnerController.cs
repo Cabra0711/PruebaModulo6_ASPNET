@@ -10,10 +10,12 @@ namespace RentingBooking.Controllers;
 public class OwnerController : Controller
 {
     private readonly IPropertyService _propertyService;
+    private readonly IDashboardService _dashboardService;
 
-    public OwnerController(IPropertyService propertyService)
+    public OwnerController(IPropertyService propertyService, IDashboardService dashboardService)
     {
         _propertyService = propertyService;
+        _dashboardService = dashboardService;
     }
 
     [HttpGet("Landing")]
@@ -31,6 +33,35 @@ public class OwnerController : Controller
         }
 
         return View(response.Data);
+    }
+
+    [HttpGet("Dashboard")]
+    public async Task<IActionResult> Dashboard(Guid? propertyId, DateTime? from, DateTime? to)
+    {
+        var ownerId = GetUserIdFromToken();
+        if (ownerId == Guid.Empty)
+            return RedirectToAction("Login", "Auth");
+
+        var response = await _dashboardService.GetDashboard(ownerId, propertyId, from, to);
+        if (!response.Success)
+        {
+            TempData["ErrorMessage"] = response.Message;
+            return RedirectToAction("OwnerLanding");
+        }
+
+        return View(response.Data);
+    }
+
+    [HttpGet("ExportBookings")]
+    public async Task<IActionResult> ExportBookings(Guid? propertyId)
+    {
+        var ownerId = GetUserIdFromToken();
+        if (ownerId == Guid.Empty)
+            return RedirectToAction("Login", "Auth");
+
+        var fileData = await _dashboardService.ExportBookingsToExcel(ownerId, propertyId);
+        var fileName = $"bookings-{DateTime.UtcNow:yyyyMMddHHmmss}.xlsx";
+        return File(fileData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 
     private Guid GetUserIdFromToken()
