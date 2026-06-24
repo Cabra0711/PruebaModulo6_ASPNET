@@ -6,7 +6,7 @@ using RentingBooking.Service.Interfaces;
 namespace RentingBooking.Controllers;
 
 [Authorize(Roles = "User")]
-[Route("User")]
+[Route("BookingRenting/User")]
 public class UserController : Controller
 {
     private readonly IUserService _userService;

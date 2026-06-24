@@ -1,0 +1,244 @@
+@model RentingBooking.Models.Property
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="min-h-screen bg-[#fff4f5] text-slate-900">
+    <header class="border-b border-[#f4d7dc] bg-white/90 py-5 shadow-sm">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <a asp-controller="Home" asp-action="Index" class="flex items-center gap-3 text-[#b41531] font-semibold">
+                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fde3e8] text-2xl">♥</span>
+                <span>RentingBooking</span>
+            </a>
+            <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#f0d6db] bg-white text-[#b41531] shadow-sm sm:hidden">
+                <span class="sr-only">Abrir menú</span>
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+            </button>
+            <nav class="hidden items-center gap-6 text-sm font-medium sm:flex">
+                <a asp-controller="Property" asp-action="GetPublicProperties" class="text-slate-700 transition hover:text-[#b41531]">Explorar</a>
+                <a asp-controller="User" asp-action="UserLanding" class="text-slate-700 transition hover:text-[#b41531]">Perfil</a>
+                <a asp-controller="Auth" asp-action="Logout" class="text-slate-700 transition hover:text-[#b41531]">Salir</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        @if (TempData["ErrorMessage"] != null || TempData["SuccessMessage"] != null)
+        {
+            <div class="mb-6 rounded-[28px] border px-6 py-4 text-sm shadow-sm sm:px-8 "
+                 style="border-color:#f4d7dc; background:#fff1f3; color:#7d141f;">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <p>@TempData["ErrorMessage"]</p>
+                }
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <p>@TempData["SuccessMessage"]</p>
+                }
+            </div>
+        }
+
+        <div class="grid gap-8 lg:grid-cols-[1.7fr_0.9fr]">
+            <section class="space-y-6">
+                <div class="rounded-[40px] bg-white shadow-[0_30px_80px_rgba(15,23,42,0.08)]">
+                    <div class="relative overflow-hidden rounded-[40px]">
+                        <img src="@(Model.Images?.FirstOrDefault()?.Url ?? "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80")" alt="@Model.Title" class="h-[420px] w-full object-cover" />
+                        <div class="absolute inset-x-0 top-0 flex items-center justify-between p-5">
+                            <div class="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-[#b41531] shadow-sm">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 3C9.23858 3 7 5.23858 7 8C7 11.55 12 18 12 18C12 18 17 11.55 17 8C17 5.23858 14.7614 3 12 3Z" />
+                                    <circle cx="12" cy="8" r="2" />
+                                </svg>
+                                @Model.Location
+                            </div>
+                            <div class="inline-flex items-center gap-3 rounded-full bg-white/90 p-3 shadow-sm">
+                                <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#fff1f3] text-[#b41531] transition hover:bg-[#f8d8de]">
+                                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 2H6C4.89543 2 4 2.89543 4 4V20L12 16L20 20V4C20 2.89543 19.1046 2 18 2Z" />
+                                    </svg>
+                                </button>
+                                <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#fff1f3] text-[#b41531] transition hover:bg-[#f8d8de]">
+                                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.84 4.61C20.3297 4.09969 19.7221 3.69305 19.0573 3.41735C18.3926 3.14165 17.6845 2.99995 16.97 3.00001C15.7917 3.00001 14.665 3.43376 13.8 4.3L12 6.1L10.2 4.3C8.723 2.823 6.424 2.823 4.947 4.3C3.46995 5.777 3.46995 8.076 4.947 9.553L6.737 11.343L12 16.606L17.263 11.343L19.053 9.553C20.529 8.076 20.529 5.777 19.053 4.3L20.84 4.61Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6 p-6 sm:p-8">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm uppercase tracking-[0.3em] text-[#b41531]">Casa del Árbol Minimalista</p>
+                                <h1 class="mt-3 text-4xl font-semibold text-slate-950">@Model.Title</h1>
+                                <p class="mt-4 text-sm text-slate-600">@Model.Location</p>
+                            </div>
+                            <span class="inline-flex rounded-full bg-[#e8f6ed] px-4 py-2 text-sm font-semibold text-[#1f7a43]">Active Now</span>
+                        </div>
+
+                        <div class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+                            <div class="flex flex-wrap gap-3 text-sm text-slate-600">
+                                <span class="inline-flex items-center gap-2 rounded-full bg-[#fff1f3] px-3 py-2">4 huéspedes</span>
+                                <span class="inline-flex items-center gap-2 rounded-full bg-[#fff1f3] px-3 py-2">2 dormitorios</span>
+                                <span class="inline-flex items-center gap-2 rounded-full bg-[#fff1f3] px-3 py-2">2 camas</span>
+                                <span class="inline-flex items-center gap-2 rounded-full bg-[#fff1f3] px-3 py-2">1 baño</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="h-12 w-12 overflow-hidden rounded-full border border-[#f4d7dc] bg-white">
+                                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&q=80" alt="Anfitrión" class="h-full w-full object-cover" />
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-950">@Model.Host?.Username</p>
+                                    <p class="text-xs text-slate-500">Anfitrión</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-4 rounded-[28px] border border-[#f4d7dc] bg-[#fff1f3] p-6">
+                            <div class="flex items-start gap-3">
+                                <div class="inline-flex h-11 w-11 items-center justify-center rounded-3xl bg-white text-[#b41531]">
+                                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 5C7 5 4 8 4 12C4 16 7 19 12 19C17 19 20 16 20 12C20 8 17 5 12 5Z" />
+                                        <path d="M12 8.5C13.1046 8.5 14 9.39543 14 10.5C14 11.6046 13.1046 12.5 12 12.5C10.8954 12.5 10 11.6046 10 10.5C10 9.39543 10.8954 8.5 12 8.5Z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-slate-950">Elena es una Superanfitriona</p>
+                                    <p class="mt-2 text-sm text-slate-600">Los Superanfitriones son anfitriones con experiencia y valoraciones excelentes.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="inline-flex h-11 w-11 items-center justify-center rounded-3xl bg-white text-[#b41531]">
+                                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 12H4" />
+                                        <path d="M6 8L2 12L6 16" />
+                                        <path d="M18 8L22 12L18 16" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-slate-950">Ubicación fantástica</p>
+                                    <p class="mt-2 text-sm text-slate-600">El 100% de los últimos huéspedes han valorado con 5 estrellas la ubicación.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <h2 class="text-xl font-semibold text-slate-950">Sobre este espacio</h2>
+                                <p class="mt-4 text-sm leading-7 text-slate-600">@Model.Description</p>
+                            </div>
+                            <div class="rounded-[28px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+                                <p class="text-sm font-semibold uppercase tracking-[0.28em] text-[#b41531]">Lo que este lugar ofrece</p>
+                                <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                                    <div class="flex items-center gap-3 rounded-3xl bg-[#fff6f8] p-4">
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-[#b41531]">
+                                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M5 12H19" />
+                                                <path d="M12 5L12 19" />
+                                            </svg>
+                                        </span>
+                                        <span>Wifi de alta velocidad</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 rounded-3xl bg-[#fff6f8] p-4">
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-[#b41531]">
+                                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 3L2 9L12 15L22 9L12 3Z" />
+                                                <path d="M2 15L12 21L22 15" />
+                                            </svg>
+                                        </span>
+                                        <span>Cocina equipada</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 rounded-3xl bg-[#fff6f8] p-4">
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-[#b41531]">
+                                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M2 12L12 2L22 12" />
+                                                <path d="M2 12L12 22L22 12" />
+                                            </svg>
+                                        </span>
+                                        <span>Vistas a la montaña</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 rounded-3xl bg-[#fff6f8] p-4">
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-[#b41531]">
+                                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M4 7H20V17C20 18.1 19.1 19 18 19H6C4.9 19 4 18.1 4 17V7Z" />
+                                                <path d="M8 7V5C8 3.9 8.9 3 10 3H14C15.1 3 16 3.9 16 5V7" />
+                                            </svg>
+                                        </span>
+                                        <span>Aire acondicionado</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 rounded-3xl bg-[#fff6f8] p-4">
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-[#b41531]">
+                                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M5 12H19" />
+                                                <path d="M5 16H19" />
+                                                <path d="M7 8H17" />
+                                            </svg>
+                                        </span>
+                                        <span>Estacionamiento gratuito</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="space-y-6">
+                <div class="rounded-[40px] border border-[#f4d7dc] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] sm:p-8">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-sm uppercase tracking-[0.3em] text-[#b41531]">@Model.PricePerNight.ToString("C") / noche</p>
+                            <div class="mt-3 flex items-center gap-2 text-sm text-slate-600">
+                                <span class="font-semibold text-slate-950">4.98</span>
+                                <span>•</span>
+                                <span>124 reseñas</span>
+                            </div>
+                        </div>
+                        <span class="rounded-full bg-[#eff6ff] px-4 py-2 text-sm font-semibold text-[#0f4f8f]">Premium</span>
+                    </div>
+
+                    <form asp-controller="Booking" asp-action="CreateBooking" asp-route-propertyId="@Model.Id" method="post" class="mt-8 space-y-5">
+                        @Html.AntiForgeryToken()
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <label class="space-y-2 text-sm text-slate-700">
+                                <span>LLegada</span>
+                                <input name="checkIn" type="date" required class="w-full rounded-[20px] border border-[#e9d6dc] bg-[#fff6f8] px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#b41531] focus:ring-2 focus:ring-[#f8d8de]" />
+                            </label>
+                            <label class="space-y-2 text-sm text-slate-700">
+                                <span>Salida</span>
+                                <input name="checkOut" type="date" required class="w-full rounded-[20px] border border-[#e9d6dc] bg-[#fff6f8] px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#b41531] focus:ring-2 focus:ring-[#f8d8de]" />
+                            </label>
+                        </div>
+                        <div class="rounded-[24px] border border-[#f4d7dc] bg-[#fff1f3] p-4 text-sm text-slate-600">
+                            <p><strong>Huéspedes</strong></p>
+                            <select class="mt-3 w-full rounded-[20px] border border-[#e9d6dc] bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#b41531] focus:ring-2 focus:ring-[#f8d8de]">
+                                <option>2 huéspedes</option>
+                                <option>3 huéspedes</option>
+                                <option>4 huéspedes</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full rounded-[22px] bg-[#b41531] px-6 py-4 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(180,21,49,0.25)] transition hover:bg-[#9c1227]">Reservar</button>
+                    </form>
+                    <p class="mt-4 text-center text-xs text-slate-500">No se te cobrará nada todavía. Protección contra fraudes incluida en tu reserva.</p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="border-t border-[#f4d7dc] bg-[#fff4f5] py-8 px-4 text-center text-sm text-slate-600 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl">
+            <p class="font-semibold text-[#b41531]">RentingBooking</p>
+            <div class="mt-4 flex flex-wrap justify-center gap-4">
+                <a href="#" class="transition hover:text-[#b41531]">Privacy</a>
+                <a href="#" class="transition hover:text-[#b41531]">Terms</a>
+                <a href="#" class="transition hover:text-[#b41531]">Sitemap</a>
+                <a href="#" class="transition hover:text-[#b41531]">Destinations</a>
+            </div>
+        </div>
+    </footer>
+</div>

@@ -2,37 +2,218 @@
 
 @{
     ViewData["Title"] = "Mis reservas";
+    var allBookings = Model.ToList();
+    var bookingCount = allBookings.Count();
 }
 
-<h2>Mis reservas</h2>
+<script src="https://cdn.tailwindcss.com"></script>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">No tienes reservas registradas aún.</div>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Propiedad</th>
-                <th>Check-In</th>
-                <th>Check-Out</th>
-                <th>Total</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var booking in Model)
-            {
-                <tr>
-                    <td>@booking.Property.Title</td>
-                    <td>@booking.CheckInDate.ToString("yyyy-MM-dd")</td>
-                    <td>@booking.CheckOutDate.ToString("yyyy-MM-dd")</td>
-                    <td>@booking.TotalPrice.ToString("C")</td>
-                    <td>@booking.Status</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="min-h-screen bg-[#fff4f5] text-slate-900">
+    <header class="border-b border-[#f4d7dc] bg-white/90 py-5 shadow-sm">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <a asp-controller="Home" asp-action="Index" class="flex items-center gap-3 text-[#b41531] font-semibold">
+                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fde3e8] text-2xl">♥</span>
+                <span>RentingBooking</span>
+            </a>
+            <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#f0d6db] bg-white text-[#b41531] shadow-sm sm:hidden">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        @if (TempData["ErrorMessage"] != null || TempData["SuccessMessage"] != null)
+        {
+            <div class="mb-6 rounded-[28px] border px-6 py-4 text-sm shadow-sm"
+                 style="border-color:#f4d7dc; background:#fff1f3; color:#7d141f;">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <p>@TempData["ErrorMessage"]</p>
+                }
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <p>@TempData["SuccessMessage"]</p>
+                }
+            </div>
+        }
+
+        <div class="mb-8">
+            <h1 class="text-3xl font-semibold text-slate-950">Mis reservas</h1>
+            <p class="mt-2 text-sm text-slate-600">Tienes @bookingCount reservas programadas.</p>
+        </div>
+
+        <div class="mb-8 flex flex-wrap gap-2 rounded-[24px] border border-[#f4d7dc] bg-white p-2 shadow-sm">
+            <button type="button" class="filter-btn rounded-full bg-[#b41531] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#991a30]" data-filter="all">
+                All
+            </button>
+            <button type="button" class="filter-btn rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-[#fff1f3]" data-filter="PendingPayment">
+                Pending
+            </button>
+            <button type="button" class="filter-btn rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-[#fff1f3]" data-filter="Confirmed">
+                Paid
+            </button>
+            <button type="button" class="filter-btn rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-[#fff1f3]" data-filter="Completed">
+                Completed
+            </button>
+        </div>
+
+        @if (!allBookings.Any())
+        {
+            <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-8 text-center shadow-sm">
+                <p class="text-lg font-semibold text-slate-950">No tienes reservas registradas.</p>
+                <p class="mt-2 text-sm text-slate-600">Empieza a explorar propiedades y crea tu primera reserva.</p>
+                <a asp-controller="Property" asp-action="GetPublicProperties" class="mt-6 inline-flex rounded-full bg-[#b41531] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#991a30]">
+                    Explorar propiedades
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach (var booking in allBookings)
+                {
+                    var statusClass = booking.Status.ToString() switch
+                    {
+                        "PendingPayment" => "bg-[#fde2e7] text-[#b41531]",
+                        "Confirmed" => "bg-[#def7e3] text-[#1f7a43]",
+                        "Completed" => "bg-[#e0e7ff] text-[#4f46e5]",
+                        _ => "bg-[#f3f4f6] text-slate-700"
+                    };
+                    
+                    var statusLabel = booking.Status.ToString() switch
+                    {
+                        "PendingPayment" => "Pending",
+                        "Confirmed" => "Paid",
+                        "Completed" => "Completed",
+                        _ => booking.Status.ToString()
+                    };
+
+                    <div class="booking-card rounded-[32px] border border-[#f4d7dc] bg-white shadow-sm overflow-hidden transition hover:shadow-md" data-status="@booking.Status">
+                        <div class="relative overflow-hidden rounded-t-[32px] bg-slate-200 h-48">
+                            <img src="@(booking.Property.Images?.FirstOrDefault()?.Url ?? "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80")" alt="@booking.Property.Title" class="h-full w-full object-cover" />
+                            <span class="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-semibold @statusClass">
+                                @if (statusLabel == "Paid")
+                                {
+                                    <span class="h-2 w-2 rounded-full bg-[#1f7a43]"></span>
+                                }
+                                @statusLabel
+                            </span>
+                        </div>
+
+                        <div class="p-5 sm:p-6">
+                            <h3 class="text-lg font-semibold text-slate-950">@booking.Property.Title</h3>
+
+                            <div class="mt-4 space-y-3 text-sm text-slate-600">
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff1f3] text-[#b41531]">
+                                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3Z" />
+                                            <path d="M16 2V6" />
+                                            <path d="M8 2V6" />
+                                            <path d="M3 10H21" />
+                                        </svg>
+                                    </span>
+                                    <div>
+                                        <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Check-in</p>
+                                        <p class="mt-1 font-semibold text-slate-900">@booking.CheckInDate.ToString("dd MMM, yyyy")</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff1f3] text-[#b41531]">
+                                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3Z" />
+                                            <path d="M16 2V6" />
+                                            <path d="M8 2V6" />
+                                            <path d="M3 10H21" />
+                                        </svg>
+                                    </span>
+                                    <div>
+                                        <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Check-out</p>
+                                        <p class="mt-1 font-semibold text-slate-900">@booking.CheckOutDate.ToString("dd MMM, yyyy")</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 border-t border-[#f4d7dc] pt-4">
+                                <p class="text-sm text-slate-600">Total</p>
+                                <p class="mt-2 text-2xl font-semibold text-[#b41531]">@booking.TotalPrice.ToString("C")</p>
+                            </div>
+
+                            <div class="mt-5 flex flex-col gap-2 sm:flex-row sm:gap-3">
+                                <a href="#" class="flex-1 rounded-full border border-slate-300 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:border-[#b41531] hover:text-[#b41531]">
+                                    Detalles
+                                </a>
+                                @if (booking.Status.ToString() == "PendingPayment")
+                                {
+                                    <form asp-controller="Booking" asp-action="CancelBooking" asp-route-bookingId="@booking.Id" method="post" class="flex-1">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="w-full rounded-full border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#b41531] hover:text-[#b41531]">
+                                            Cancelar
+                                        </button>
+                                    </form>
+                                    <button type="button" class="flex-1 rounded-full bg-[#b41531] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#991a30]">
+                                        Pagar
+                                    </button>
+                                }
+                                else if (booking.Status.ToString() == "Paid")
+                                {
+                                    <form asp-controller="Booking" asp-action="CancelBooking" asp-route-bookingId="@booking.Id" method="post" class="flex-1">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="w-full rounded-full border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#b41531] hover:text-[#b41531]">
+                                            Cancelar
+                                        </button>
+                                    </form>
+                                }
+                                else if (booking.Status.ToString() == "Completed")
+                                {
+                                    <button type="button" class="flex-1 rounded-full border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#b41531] hover:text-[#b41531]">
+                                        Volver a reservar
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </main>
+
+    <footer class="border-t border-[#f4d7dc] bg-[#fff4f5] py-8 px-4 text-center text-sm text-slate-600 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl">
+            <p class="font-semibold text-[#b41531]">RentingBooking</p>
+            <div class="mt-4 flex flex-wrap justify-center gap-4">
+                <a href="#" class="transition hover:text-[#b41531]">Privacy</a>
+                <a href="#" class="transition hover:text-[#b41531]">Terms</a>
+                <a href="#" class="transition hover:text-[#b41531]">Sitemap</a>
+                <a href="#" class="transition hover:text-[#b41531]">Destinations</a>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            const cards = document.querySelectorAll('.booking-card');
+            
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('bg-[#b41531]', 'text-white');
+                b.classList.add('bg-white', 'text-slate-700');
+            });
+            
+            this.classList.remove('bg-white', 'text-slate-700');
+            this.classList.add('bg-[#b41531]', 'text-white');
+            
+            cards.forEach(card => {
+                if (filter === 'all' || card.dataset.status === filter) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>

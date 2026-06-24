@@ -5,22 +5,36 @@ using RentingBooking.Service.Interfaces;
 
 namespace RentingBooking.Controllers;
 
-[Route("Booking")]
+[Route("BookingRenting/Booking")]
 public class BookingController : Controller
 {
     private readonly IBookingService _bookingService;
+    private readonly IPropertyService _propertyService;
 
-    public BookingController(IBookingService bookingService)
+    public BookingController(IBookingService bookingService, IPropertyService propertyService)
     {
         _bookingService = bookingService;
+        _propertyService = propertyService;
     }
 
     [Authorize(Roles = "User")]
     [HttpGet("Create/{propertyId:guid}")]
-    public IActionResult CreateBooking(Guid propertyId)
+    public async Task<IActionResult> CreateBooking(Guid propertyId, DateOnly? checkIn = null, DateOnly? checkOut = null)
     {
-        ViewData["PropertyId"] = propertyId;
-        return View();
+        var response = await _propertyService.GetPropertyById(propertyId);
+        if (!response.Success || response.Data == null)
+        {
+            TempData["ErrorMessage"] = response.Message;
+            return RedirectToAction("GetPublicProperties", "Property");
+        }
+
+        var property = response.Data;
+        var defaultCheckIn = checkIn ?? DateOnly.FromDateTime(DateTime.Today.AddDays(7));
+        var defaultCheckOut = checkOut ?? DateOnly.FromDateTime(DateTime.Today.AddDays(12));
+
+        ViewData["CheckIn"] = defaultCheckIn;
+        ViewData["CheckOut"] = defaultCheckOut;
+        return View(property);
     }
 
     [Authorize(Roles = "User")]

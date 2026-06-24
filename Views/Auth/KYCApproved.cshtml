@@ -1,0 +1,50 @@
+@model RentingBooking.Models.User
+
+@{
+    ViewData["Title"] = "Verificación Aprobada";
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="min-h-screen bg-gray-100 flex flex-col">
+    <!-- Header -->
+    <div class="bg-[#b41531] text-white py-6 px-4 text-center shadow-lg">
+        <div class="flex items-center justify-center gap-2">
+            <span class="text-2xl">🏠</span>
+            <h1 class="text-2xl font-bold">RentingBooking</h1>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex items-center justify-center px-4 py-12">
+        <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-8 text-center">
+            <!-- Greeting -->
+            <p class="text-sm text-slate-600 mb-4">¡Hola, <span class="font-bold">@Model?.Username ?? "Usuario"</span>! 🎉</p>
+            
+            <!-- Main Message -->
+            <p class="text-slate-700 mb-6 text-sm leading-relaxed">
+                Tu verificación de identidad ha sido aprobada. Ya puedes realizar reservas en nuestra plataforma con total seguridad.
+            </p>
+
+            <!-- Details -->
+            <div class="bg-slate-50 rounded-lg p-4 mb-6 text-left text-sm">
+                <p class="text-slate-600 mb-2">
+                    <span class="font-semibold">Nombre verificado:</span> @Model?.Username
+                </p>
+                <p class="text-slate-600">
+                    <span class="font-semibold">Documento:</span> @Model?.KycVerification?.DocumentNumber
+                </p>
+            </div>
+
+            <!-- CTA Button -->
+            <a asp-controller="Property" asp-action="GetPublicProperties" class="inline-block bg-[#b41531] text-white px-6 py-2 rounded-md font-semibold hover:bg-[#991a30] transition mb-4">
+                Empezar a explorar
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-white border-t border-gray-200 text-center py-4 px-4">
+        <p class="text-xs text-gray-500">© 2026 RentingBooking · Todos los derechos reservados</p>
+    </div>
+</div>

@@ -6,7 +6,7 @@ using RentingBooking.Service.Interfaces;
 
 namespace RentingBooking.Controllers;
 
-[Route("Property")]
+[Route("BookingRenting/Property")]
 public class PropertyController : Controller
 {
     private readonly IPropertyService _propertyService;
@@ -42,13 +42,9 @@ public class PropertyController : Controller
 
     [Authorize(Roles = "Owner")]
     [HttpGet("dashboard")]
-    public async Task<IActionResult> GetPropertiesByHost()
+    public IActionResult GetPropertiesByHost()
     {
-        var hostId = GetUserIdFromToken();
-        if (hostId == Guid.Empty) return RedirectToAction("Login", "Auth");
-
-        var response = await _propertyService.GetPropertiesByHost(hostId);
-        return View(response.Data);
+        return RedirectToAction("OwnerLanding", "Owner");
     }
 
 

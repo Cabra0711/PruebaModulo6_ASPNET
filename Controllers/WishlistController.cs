@@ -6,7 +6,7 @@ using RentingBooking.Service.Interfaces;
 namespace RentingBooking.Controllers;
 
 [Authorize(Roles = "User")]
-[Route("Wishlist")]
+[Route("BookingRenting/Wishlist")]
 public class WishlistController : Controller
 {
     private readonly IWishlistService _wishlistService;

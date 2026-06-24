@@ -2,53 +2,135 @@
 
 @{
     ViewData["Title"] = "Dashboard Usuario";
+    var totalBookings = Model.Bookings?.Count() ?? 0;
+    var activeBookings = Model.Bookings?.Count(b => b.CheckOutDate >= DateOnly.FromDateTime(DateTime.Today)) ?? 0;
+    var totalInvested = Model.Bookings?.Sum(b => b.TotalPrice) ?? 0m;
+    var recentBookings = Model.Bookings?.OrderByDescending(b => b.CheckInDate).Take(3) ?? Enumerable.Empty<RentingBooking.Models.Booking>();
+    var kycStatusEnum = Model.KycVerification?.Status;
+    var kycApproved = kycStatusEnum == RentingBooking.Enum.KycStatus.Accepted;
+    var kycRejected = kycStatusEnum == RentingBooking.Enum.KycStatus.Rejected;
+    var kycLabel = kycApproved ? "Aprobado" : kycRejected ? "Rechazado" : "Pendiente";
 }
 
-<h2>Bienvenido, @Model.Username</h2>
+<script src="https://cdn.tailwindcss.com"></script>
 
-<div class="mb-3">
-    <strong>Email:</strong> @Model.Email
-</div>
+<div class="min-h-screen bg-[#fff4f5] text-slate-900">
+    <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+        <header class="mb-6 rounded-[32px] bg-white px-5 py-6 shadow-sm sm:px-6">
+            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-[#b41531]">RentingBooking</p>
+            <h1 class="mt-4 text-4xl font-semibold text-slate-950">¡Hola, @Model.Username!</h1>
+            <p class="mt-3 text-sm leading-6 text-slate-600">Bienvenido de nuevo a tu panel personal. Aquí puedes gestionar tus estancias y descubrir nuevos destinos.</p>
+        </header>
 
-@if (Model.KycVerification != null)
-{
-    <div class="mb-3">
-        <strong>KYC:</strong> @Model.KycVerification.Status
+        <section class="space-y-5">
+            <div class="rounded-[32px] bg-white p-5 shadow-sm sm:p-6">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-[#b41531]">Estado KYC</p>
+                        <div class="mt-3 inline-flex items-center gap-3 rounded-full @(kycApproved ? "bg-[#f0f7ef] text-[#1f7a43]" : kycRejected ? "bg-[#fff1f3] text-[#b41531]" : "bg-[#fff7e8] text-[#b45309]") px-4 py-2 text-sm font-semibold">
+                            <span class="h-2.5 w-2.5 rounded-full @(kycApproved ? "bg-[#1f7a43]" : kycRejected ? "bg-[#b41531]" : "bg-[#b45309]")"></span>
+                            @kycLabel
+                        </div>
+                    </div>
+                    <div class="rounded-[28px] bg-[#fff1f3] p-4 text-sm text-slate-600">
+                        <p class="font-medium text-slate-950">@(kycApproved ? "Tu identidad está verificada" : "Tu KYC no está completo")</p>
+                        <p class="mt-2">@(kycApproved ? "Ya puedes reservar propiedades sin restricciones." : "Sube tu identificación para poder reservar propiedades.")</p>
+                        @if (!kycApproved)
+                        {
+                            <a asp-controller="User" asp-action="Kyc" class="mt-3 inline-flex rounded-full bg-[#b41531] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#991a30]">Verificar identidad</a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-3">
+                <div class="rounded-[28px] border border-[#f4d7dc] bg-white p-5 shadow-sm">
+                    <p class="text-xs uppercase tracking-[0.3em] text-[#b41531]">Total reservas</p>
+                    <p class="mt-4 text-3xl font-semibold text-slate-950">@totalBookings</p>
+                    <p class="mt-2 text-xs text-slate-500">+2 este mes</p>
+                </div>
+                <div class="rounded-[28px] border border-[#f4d7dc] bg-white p-5 shadow-sm">
+                    <p class="text-xs uppercase tracking-[0.3em] text-[#10b981]">Reservas activas</p>
+                    <p class="mt-4 text-3xl font-semibold text-slate-950">@activeBookings</p>
+                    <p class="mt-2 text-xs text-slate-500">Próxima en 3 días</p>
+                </div>
+                <div class="rounded-[28px] border border-[#f4d7dc] bg-white p-5 shadow-sm">
+                    <p class="text-xs uppercase tracking-[0.3em] text-[#b41531]">Ahorro total</p>
+                    <p class="mt-4 text-3xl font-semibold text-slate-950">@totalInvested.ToString("C")</p>
+                    <p class="mt-2 text-xs text-slate-500">Total invertido</p>
+                </div>
+            </div>
+
+            <div class="rounded-[32px] bg-white p-5 shadow-sm sm:p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-[#b41531]">Reservas recientes</p>
+                        <p class="mt-2 text-sm text-slate-600">Un vistazo rápido a tus estancias más recientes.</p>
+                    </div>
+                    <a asp-controller="User" asp-action="MyBookings" class="text-sm font-semibold text-[#b41531] transition hover:text-[#991a30]">Ver todas</a>
+                </div>
+
+                <div class="mt-5 overflow-hidden rounded-[28px] border border-[#f4d7dc] bg-[#fff1f3]">
+                    <div class="grid gap-3 px-4 py-4 text-xs uppercase tracking-[0.3em] text-slate-500 sm:grid-cols-[1.5fr_1fr_1fr]">
+                        <span>Propiedad</span>
+                        <span>Fechas</span>
+                        <span class="text-right">Total</span>
+                    </div>
+                    <div class="divide-y divide-[#f4d7dc]">
+                        @if (recentBookings.Any())
+                        {
+                            @foreach (var booking in recentBookings)
+                            {
+                                <div class="grid gap-3 px-4 py-4 text-sm text-slate-900 sm:grid-cols-[1.5fr_1fr_1fr]">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-14 w-14 overflow-hidden rounded-3xl bg-slate-200">
+                                            <img src="@(booking.Property.Images?.FirstOrDefault()?.Url ?? "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=240&q=80")" alt="@booking.Property.Title" class="h-full w-full object-cover" />
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold">@booking.Property.Title</p>
+                                            <p class="text-xs text-slate-500">@booking.Property.Location</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold">@booking.CheckInDate.ToString("dd") - @booking.CheckOutDate.ToString("dd MMM")</p>
+                                    </div>
+                                    <div class="text-right font-semibold text-slate-950">@booking.TotalPrice.ToString("C")</div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="px-4 py-6 text-center text-sm text-slate-600">No tienes reservas recientes.</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4 rounded-[32px] bg-white p-5 shadow-sm sm:p-6">
+                <p class="text-sm font-semibold uppercase tracking-[0.28em] text-[#b41531]">Accesos rápidos</p>
+                <div class="space-y-3">
+                    <a asp-controller="User" asp-action="MyBookings" class="flex items-center justify-between rounded-[24px] border border-[#f4d7dc] px-4 py-4 text-sm font-semibold text-slate-900 transition hover:border-[#b41531]">
+                        <span>Ver todas mis reservas</span>
+                        <span class="text-[#b41531]">→</span>
+                    </a>
+                    <a asp-controller="Property" asp-action="GetPublicProperties" class="flex items-center justify-between rounded-[24px] border border-[#f4d7dc] px-4 py-4 text-sm font-semibold text-slate-900 transition hover:border-[#b41531]">
+                        <span>Explorar</span>
+                        <span class="text-[#b41531]">→</span>
+                    </a>
+                    <a asp-controller="Wishlist" asp-action="Index" class="flex items-center justify-between rounded-[24px] border border-[#f4d7dc] px-4 py-4 text-sm font-semibold text-slate-900 transition hover:border-[#b41531]">
+                        <span>Wishlist</span>
+                        <span class="text-[#b41531]">→</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="rounded-[32px] bg-[url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center p-5 text-white shadow-sm sm:p-6">
+                <div class="rounded-[32px] bg-slate-950/75 p-5">
+                    <p class="text-sm uppercase tracking-[0.28em] text-[#f5c6ce]">Oferta exclusiva</p>
+                    <h2 class="mt-4 text-2xl font-semibold">Escapada a Bali</h2>
+                    <a asp-controller="Property" asp-action="GetPublicProperties" class="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#d70d36] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#b41531]">Reservar ahora</a>
+                </div>
+            </div>
+        </section>
     </div>
-}
-
-<div class="mb-4">
-    <a asp-action="MyBookings" class="btn btn-primary">Mis reservas</a>
 </div>
-
-<h3>Reservas recientes</h3>
-@if (Model.Bookings?.Any() == true)
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Propiedad</th>
-                <th>Check-In</th>
-                <th>Check-Out</th>
-                <th>Total</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var booking in Model.Bookings)
-            {
-                <tr>
-                    <td>@booking.Property.Title</td>
-                    <td>@booking.CheckInDate.ToString("yyyy-MM-dd")</td>
-                    <td>@booking.CheckOutDate.ToString("yyyy-MM-dd")</td>
-                    <td>@booking.TotalPrice.ToString("C")</td>
-                    <td>@booking.Status</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No hay reservas registradas.</p>
-}

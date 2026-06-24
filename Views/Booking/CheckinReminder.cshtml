@@ -1,0 +1,64 @@
+@model RentingBooking.Models.Booking
+
+@{
+    ViewData["Title"] = "Recordatorio de Check-in";
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="min-h-screen bg-gray-100 flex flex-col">
+    <!-- Header -->
+    <div class="bg-[#b41531] text-white py-6 px-4 text-center shadow-lg">
+        <div class="flex items-center justify-center gap-2">
+            <span class="text-2xl">🏠</span>
+            <h1 class="text-2xl font-bold">RentingBooking</h1>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex items-center justify-center px-4 py-12">
+        <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-8 text-center">
+            <!-- Greeting -->
+            <p class="text-sm text-slate-600 mb-4">Hola, <span class="font-bold">@Model?.Guest?.Username ?? "Usuario"</span>! 🏠</p>
+            
+            <!-- Main Message -->
+            <p class="text-slate-700 mb-6 text-sm leading-relaxed">
+                ¡Tu estancia comienza mañana! Aquí tienes un recordatorio para tu llegada:
+            </p>
+
+            <!-- Booking Details -->
+            <div class="bg-slate-50 rounded-lg p-4 mb-6 text-left text-sm space-y-3 border-b border-gray-200 pb-4">
+                <p>
+                    <span class="font-semibold">Propiedad</span><br />
+                    <span class="text-slate-600">@Model?.Property?.Title</span>
+                </p>
+                <p>
+                    <span class="font-semibold">Dirección</span><br />
+                    <span class="text-slate-600">@Model?.Property?.Location</span>
+                </p>
+                <p>
+                    <span class="font-semibold">Check-in</span><br />
+                    <span class="text-slate-600">@Model?.CheckInDate.ToString("dd MMM yyyy") a las 14:00 hs</span>
+                </p>
+            </div>
+
+            <!-- Tips Section -->
+            <p class="text-slate-700 mb-3 text-sm font-semibold">Consejos:</p>
+            <ul class="text-slate-600 text-sm leading-relaxed mb-6 text-left space-y-2">
+                <li>• Ten tu ID a mano por si el anfitrión lo solicita.</li>
+                <li>• Comunicate con el dueño si necesitas instrucciones de llegada.</li>
+                <li>• ¡Disfruta tu viaje!</li>
+            </ul>
+
+            <!-- CTA Button -->
+            <a asp-controller="User" asp-action="MyBookings" class="inline-block bg-[#b41531] text-white px-6 py-2 rounded-md font-semibold hover:bg-[#991a30] transition mb-4">
+                Ver detalles de mi reserva
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-white border-t border-gray-200 text-center py-4 px-4">
+        <p class="text-xs text-gray-500">© 2026 RentingBooking · Todos los derechos reservados</p>
+    </div>
+</div>

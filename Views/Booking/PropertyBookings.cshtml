@@ -1,0 +1,284 @@
+@model (Property Property, IEnumerable<Booking> Bookings)
+
+@{
+    ViewData["Title"] = "Reservas de: " + Model.Property.Title;
+    var propertyImage = Model.Property.Images?.FirstOrDefault()?.Url ?? "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80";
+    var totalBookings = Model.Bookings?.Count() ?? 0;
+    var totalRevenue = Model.Bookings?.Sum(b => b.TotalPrice) ?? 0m;
+    var upcomingBookings = Model.Bookings?.Count(b => b.CheckInDate >= DateOnly.FromDateTime(DateTime.Now)) ?? 0;
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="min-h-screen bg-[#fff4f5] text-slate-900">
+    <!-- Header -->
+    <header class="border-b border-[#f4d7dc] bg-white/90 py-4 shadow-sm sticky top-0 z-50">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-3">
+                <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 text-[#b41531] font-semibold">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#fde3e8] text-xl">♥</span>
+                    <span class="text-lg hidden sm:inline">RentingBooking</span>
+                </a>
+                <div class="hidden sm:flex ml-4 px-4 py-1 bg-[#fde3e8] rounded-full text-xs font-semibold text-[#b41531]">
+                    Owner Portal
+                </div>
+            </div>
+            <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#fde3e8] text-[#b41531] transition hover:bg-[#f4d7dc] sm:hidden">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12C13.1 12 14 11.1 14 10C14 8.9 13.1 8 12 8C10.9 8 10 8.9 10 10C10 11.1 10.9 12 12 12ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 pb-32 sm:pb-8">
+        <!-- Back Button and Title -->
+        <div class="mb-8 flex items-start gap-4">
+            <a asp-controller="Owner" asp-action="OwnerLanding" class="inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition hover:text-[#b41531]">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <div>
+                <p class="text-sm text-slate-600">Volver al dashboard</p>
+                <h1 class="text-3xl font-bold text-slate-950">Reservas de: @Model.Property.Title</h1>
+            </div>
+        </div>
+
+        <!-- Download Report Button -->
+        <div class="mb-8">
+            <button type="button" class="rounded-full bg-[#b41531] px-6 py-2 text-sm font-semibold text-white transition hover:bg-[#991a30]">
+                <svg class="inline-flex h-4 w-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                </svg>
+                Descargar reporte
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid gap-6 sm:grid-cols-3 mb-8">
+            <!-- Total Reservas -->
+            <div class="rounded-[24px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs text-slate-600 font-semibold">Total Reservas</p>
+                        <p class="mt-3 text-4xl font-bold text-slate-950">@totalBookings</p>
+                        <p class="mt-2 text-xs text-slate-600">
+                            <span class="text-[#1f7a43] font-semibold">↑ +12%</span> este mes
+                        </p>
+                    </div>
+                    <svg class="h-6 w-6 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V12H17V17Z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Ingresos Totales -->
+            <div class="rounded-[24px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs text-slate-600 font-semibold">Ingresos Totales</p>
+                        <p class="mt-3 text-4xl font-bold text-slate-950">$@totalRevenue.ToString("N2")</p>
+                        <p class="mt-2 text-xs text-slate-600">Bruto acumulado</p>
+                    </div>
+                    <svg class="h-6 w-6 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V10H13V17ZM11.5 8.5C10.67 8.5 10 7.83 10 7C10 6.17 10.67 5.5 11.5 5.5C12.33 5.5 13 6.17 13 7C13 7.83 12.33 8.5 11.5 8.5Z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Ocupación Media -->
+            <div class="rounded-[24px] border border-[#b41531] bg-[#b41531] p-6 shadow-sm text-white">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-semibold">Ocupación Media</p>
+                        <p class="mt-3 text-4xl font-bold">84%</p>
+                        <p class="mt-2 text-xs">Últimos 30 días</p>
+                    </div>
+                    <svg class="h-6 w-6 text-white opacity-80" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V12H17V17Z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Listado de Reservas Section -->
+        <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm sm:p-8 mb-8">
+            <h2 class="mb-6 text-xl font-bold text-slate-950">Listado de Reservas</h2>
+
+            <!-- Search Bar -->
+            <div class="mb-6 flex items-center gap-3 rounded-[16px] border border-slate-300 bg-white px-4 py-3 transition focus-within:border-[#b41531] focus-within:ring-2 focus-within:ring-[#f4d7dc]">
+                <svg class="h-5 w-5 text-slate-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input type="text" 
+                       placeholder="Buscar huésped..." 
+                       class="flex-1 bg-white text-sm placeholder-slate-400 text-slate-900 outline-none" />
+            </div>
+
+            <!-- Bookings Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200">
+                            <th class="px-4 py-3 text-left font-semibold text-slate-950">HUÉSPED</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-950">FECHAS</th>
+                            <th class="px-4 py-3 text-left font-semibold text-slate-950 hidden sm:table-cell">ESTADO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Bookings?.Any() == true)
+                        {
+                            @foreach (var booking in Model.Bookings.Take(4))
+                            {
+                                <tr class="border-b border-slate-200 hover:bg-slate-50 transition">
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#b41531] text-white font-semibold">
+                                                @booking.Guest?.Username?.FirstOrDefault().ToString()?.ToUpper() ?? "U"
+                                            </div>
+                                            <div>
+                                                <p class="font-semibold text-slate-950">@booking.Guest?.Username ?? "Huésped"</p>
+                                                <p class="text-xs text-slate-600">@booking.Guest?.Email ?? "email@example.com"</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-slate-700">
+                                        <p class="font-semibold">@booking.CheckInDate.ToString("dd MMM -")</p>
+                                        <p class="text-xs text-slate-600">@booking.CheckOutDate.ToString("dd MMM, yyyy")</p>
+                                    </td>
+                                    <td class="px-4 py-4 hidden sm:table-cell">
+                                        @if (booking.Status == RentingBooking.Enum.BookingStatus.Paid)
+                                        {
+                                            <span class="inline-flex items-center rounded-full bg-[#1f7a43] px-3 py-1 text-xs font-semibold text-white">
+                                                Confirmada
+                                            </span>
+                                        }
+                                        else if (booking.Status == RentingBooking.Enum.BookingStatus.PendingPayment)
+                                        {
+                                            <span class="inline-flex items-center rounded-full bg-[#b41531] px-3 py-1 text-xs font-semibold text-white">
+                                                Pago Pendiente
+                                            </span>
+                                        }
+                                        else if (booking.Status == RentingBooking.Enum.BookingStatus.Completed)
+                                        {
+                                            <span class="inline-flex items-center rounded-full bg-slate-400 px-3 py-1 text-xs font-semibold text-white">
+                                                Completada
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="px-4 py-8 text-center text-slate-600">
+                                    <p>No hay reservas para esta propiedad</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (totalBookings > 4)
+            {
+                <div class="mt-6 flex items-center justify-between border-t border-slate-200 pt-4">
+                    <p class="text-xs text-slate-600">Mostrando 4 de @totalBookings reservas</p>
+                    <div class="flex gap-2">
+                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 text-slate-600 transition hover:border-[#b41531] hover:text-[#b41531] disabled:opacity-50">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z" />
+                            </svg>
+                        </button>
+                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 text-slate-600 transition hover:border-[#b41531] hover:text-[#b41531]">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Property Image Section -->
+        <div class="mb-8 rounded-[24px] overflow-hidden shadow-sm">
+            <div class="relative h-64 overflow-hidden bg-slate-200">
+                <img src="@propertyImage" alt="@Model.Property.Title" class="h-full w-full object-cover" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
+                    <div class="text-white">
+                        <p class="font-semibold">@Model.Property.Title</p>
+                        <div class="flex items-center gap-1 mt-1 text-sm">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" />
+                            </svg>
+                            @Model.Property.Location
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Block Dates Section -->
+        <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm sm:p-8">
+            <div class="text-center py-6">
+                <svg class="h-12 w-12 mx-auto text-slate-400 mb-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V12H17V17Z" />
+                </svg>
+                <p class="font-semibold text-slate-950 mb-2">Bloquear fechas</p>
+                <p class="text-xs text-slate-600 mb-4">
+                    Añade periodos de mantenimiento o <br /> uso personal al calendario.
+                </p>
+                <button type="button" class="rounded-full border border-[#b41531] px-6 py-2 text-sm font-semibold text-[#b41531] transition hover:bg-[#fde3e8]">
+                    Abrir calendario
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[#f4d7dc] bg-[#fff4f5] py-8 px-4 text-center text-sm text-slate-600 sm:px-6 lg:px-8 mt-8 mb-20 md:mb-0">
+        <div class="mx-auto max-w-7xl">
+            <p class="font-semibold text-[#b41531]">RentingBooking</p>
+            <p class="mt-2">© 2024 RentingBooking Inc.</p>
+            <div class="mt-4 flex flex-wrap justify-center gap-4">
+                <a href="#" class="transition hover:text-[#b41531]">Privacy</a>
+                <a href="#" class="transition hover:text-[#b41531]">Terms</a>
+                <a href="#" class="transition hover:text-[#b41531]">Sitemap</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="fixed bottom-0 left-0 right-0 border-t border-[#f4d7dc] bg-white shadow-2xl md:hidden">
+        <div class="flex items-center justify-around px-4 py-3">
+            <a asp-controller="Property" asp-action="GetPublicProperties" class="flex flex-col items-center gap-1 text-slate-600 transition hover:text-[#b41531]">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.5 1H4C2.34 1 1 2.34 1 4V20C1 21.66 2.34 23 4 23H20C21.66 23 23 21.66 23 20V8.5L15.5 1ZM12 19C10.34 19 9 17.66 9 16C9 14.34 10.34 13 12 13C13.66 13 15 14.34 15 16C15 17.66 13.66 19 12 19ZM18 9H4V4H18V9Z" />
+                </svg>
+                <span class="text-xs">Explorar</span>
+            </a>
+            <a asp-controller="Wishlist" asp-action="Index" class="flex flex-col items-center gap-1 text-slate-600 transition hover:text-[#b41531]">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" />
+                </svg>
+                <span class="text-xs">Wishlist</span>
+            </a>
+            <a asp-controller="Owner" asp-action="OwnerLanding" class="flex flex-col items-center gap-1 text-[#b41531] transition hover:text-[#991a30]">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V12H17V17Z" />
+                </svg>
+                <span class="text-xs">Propiedades</span>
+            </a>
+            <a asp-controller="User" asp-action="Profile" class="flex flex-col items-center gap-1 text-slate-600 transition hover:text-[#b41531]">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12C13.1 12 14 11.1 14 10C14 8.9 13.1 8 12 8C10.9 8 10 8.9 10 10C10 11.1 10.9 12 12 12ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" />
+                </svg>
+                <span class="text-xs">Perfil</span>
+            </a>
+        </div>
+    </nav>
+</div>

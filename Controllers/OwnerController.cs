@@ -6,16 +6,18 @@ using RentingBooking.Service.Interfaces;
 namespace RentingBooking.Controllers;
 
 [Authorize(Roles = "Owner")]
-[Route("Owner")]
+[Route("BookingRenting/Owner")]
 public class OwnerController : Controller
 {
     private readonly IPropertyService _propertyService;
     private readonly IDashboardService _dashboardService;
+    private readonly IUserService _userService;
 
-    public OwnerController(IPropertyService propertyService, IDashboardService dashboardService)
+    public OwnerController(IPropertyService propertyService, IDashboardService dashboardService, IUserService userService)
     {
         _propertyService = propertyService;
         _dashboardService = dashboardService;
+        _userService = userService;
     }
 
     [HttpGet("Landing")]
@@ -33,6 +35,23 @@ public class OwnerController : Controller
         }
 
         return View(response.Data);
+    }
+
+    [HttpGet("Analytics")]
+    public async Task<IActionResult> OwnerDashboard()
+    {
+        var ownerId = GetUserIdFromToken();
+        if (ownerId == Guid.Empty)
+            return RedirectToAction("Login", "Auth");
+
+        var user = await _userService.GetUserByIdAsync(ownerId);
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = "User not found.";
+            return RedirectToAction("Login", "Auth");
+        }
+
+        return View(user);
     }
 
     [HttpGet("Dashboard")]

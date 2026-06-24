@@ -156,7 +156,10 @@ public class BookingService : IBookingService
 
     public async Task<ServiceResponse<Booking>> GetBookingById(Guid bookingId)
     {
-        var booking = await _dbContext.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId);
+        var booking = await _dbContext.Bookings
+            .Include(b => b.Property)
+            .Include(b => b.Guest)
+            .FirstOrDefaultAsync(b => b.Id == bookingId);
         if (booking == null)
         {
             return new ServiceResponse<Booking>
