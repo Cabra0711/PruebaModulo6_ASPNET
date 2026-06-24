@@ -4,7 +4,6 @@ namespace RentingBooking.Models;
 
 public class NotificationLog : BaseEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
     public Guid UserId { get; set; }
     public NotificationType Type { get; set; }
     public NotificationEvent Event { get; set; }

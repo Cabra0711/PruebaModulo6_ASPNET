@@ -1,0 +1,54 @@
+@model RentingBooking.Models.User
+
+@{
+    ViewData["Title"] = "Dashboard Usuario";
+}
+
+<h2>Bienvenido, @Model.Username</h2>
+
+<div class="mb-3">
+    <strong>Email:</strong> @Model.Email
+</div>
+
+@if (Model.KycVerification != null)
+{
+    <div class="mb-3">
+        <strong>KYC:</strong> @Model.KycVerification.Status
+    </div>
+}
+
+<div class="mb-4">
+    <a asp-action="MyBookings" class="btn btn-primary">Mis reservas</a>
+</div>
+
+<h3>Reservas recientes</h3>
+@if (Model.Bookings?.Any() == true)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Propiedad</th>
+                <th>Check-In</th>
+                <th>Check-Out</th>
+                <th>Total</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model.Bookings)
+            {
+                <tr>
+                    <td>@booking.Property.Title</td>
+                    <td>@booking.CheckInDate.ToString("yyyy-MM-dd")</td>
+                    <td>@booking.CheckOutDate.ToString("yyyy-MM-dd")</td>
+                    <td>@booking.TotalPrice.ToString("C")</td>
+                    <td>@booking.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay reservas registradas.</p>
+}

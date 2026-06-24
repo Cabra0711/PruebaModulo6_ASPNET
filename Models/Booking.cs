@@ -4,7 +4,6 @@ namespace RentingBooking.Models;
 
 public class Booking : BaseEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
     public Guid PropertyId { get; set; }
     public Guid GuestId { get; set; }
     

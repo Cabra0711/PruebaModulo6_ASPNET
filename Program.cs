@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using RentingBooking.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -14,10 +15,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddScoped<UserValidator>();
 builder.Services.AddSession();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPropertyService, PropertyService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.Configure<N8nSettings>(
     builder.Configuration.GetSection("N8nSettings")
@@ -81,8 +85,13 @@ var key = Encoding.UTF8.GetBytes(secretKey);
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.LoginPath = "/BookingRenting/Login";
+    options.AccessDeniedPath = "/BookingRenting/Login";
 })
 .AddJwtBearer(options =>
 {
@@ -117,6 +126,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseRouting();
 

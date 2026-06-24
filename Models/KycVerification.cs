@@ -4,7 +4,6 @@ namespace RentingBooking.Models;
 
 public class KycVerification : BaseEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
     public Guid UserId { get; set; }
     public string DocumentNumber { get; set; } = null!;
     public string FirstName { get; set; } = null!;

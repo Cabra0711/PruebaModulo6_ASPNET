@@ -1,0 +1,47 @@
+@model IEnumerable<RentingBooking.Models.Property>
+
+@{
+    ViewData["Title"] = "Dashboard Owner";
+}
+
+<h2>Propiedades publicadas</h2>
+
+<p>
+    <a class="btn btn-success" asp-controller="Property" asp-action="CreateProperty">Nueva propiedad</a>
+</p>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No tienes propiedades publicadas todavía.</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Ubicación</th>
+                <th>Precio</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var property in Model)
+            {
+                <tr>
+                    <td>@property.Title</td>
+                    <td>@property.Location</td>
+                    <td>@property.PricePerNight.ToString("C")</td>
+                    <td>@property.IsActive</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" asp-controller="Property" asp-action="UpdateProperty" asp-route-id="@property.Id">Editar</a>
+                        <form asp-controller="Property" asp-action="DeleteProperty" asp-route-id="@property.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

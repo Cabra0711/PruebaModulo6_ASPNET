@@ -23,10 +23,6 @@ public class UserValidator : AbstractValidator<User>
 
         RuleFor(u => u.Role)
             .IsInEnum().WithMessage("El rol asignado no es un rol válido en el sistema.");
-
-        RuleFor(u => u.CreatedAt)
-            .NotEmpty().WithMessage("La fecha de creación es obligatoria.")
-            .LessThanOrEqualTo(p => DateTime.UtcNow).WithMessage("La fecha de creación no puede ser en el futuro.");
     }
     
 }

@@ -1,0 +1,38 @@
+@model IEnumerable<RentingBooking.Models.Booking>
+
+@{
+    ViewData["Title"] = "Mis reservas";
+}
+
+<h2>Mis reservas</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No tienes reservas registradas aún.</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Propiedad</th>
+                <th>Check-In</th>
+                <th>Check-Out</th>
+                <th>Total</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model)
+            {
+                <tr>
+                    <td>@booking.Property.Title</td>
+                    <td>@booking.CheckInDate.ToString("yyyy-MM-dd")</td>
+                    <td>@booking.CheckOutDate.ToString("yyyy-MM-dd")</td>
+                    <td>@booking.TotalPrice.ToString("C")</td>
+                    <td>@booking.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

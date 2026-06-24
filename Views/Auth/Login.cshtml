@@ -1,0 +1,53 @@
+@model RentingBooking.Models.User
+
+@{
+    ViewData["Title"] = "Login / Registro";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Iniciar sesión</h2>
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        <form asp-action="Login" asp-controller="Auth" method="post">
+            <div class="mb-3">
+                <label class="form-label">Usuario</label>
+                <input type="text" name="username" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Contraseña</label>
+                <input type="password" name="password" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h2>Registro</h2>
+        @if (ViewBag.Success != null)
+        {
+            <div class="alert alert-success">@ViewBag.Success</div>
+        }
+        @if (ViewBag.ErrorValidation != null)
+        {
+            <div class="alert alert-danger">@Html.Raw(ViewBag.ErrorValidation)</div>
+        }
+        <div class="mb-3">
+            <label class="form-label">Nombre de usuario</label>
+            <input type="text" class="form-control" name="Username" value="@Model?.Username" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="Email" value="@Model?.Email" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Contraseña</label>
+            <input type="password" class="form-control" name="PasswordHash" required />
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" formaction="/BookingRenting/RegisterCustomer" formmethod="post" class="btn btn-success">Registrar usuario</button>
+            <button type="submit" formaction="/BookingRenting/RegisterOwner" formmethod="post" class="btn btn-secondary">Registrar owner</button>
+        </div>
+    </div>
+</div>

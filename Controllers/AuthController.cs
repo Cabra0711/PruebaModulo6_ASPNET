@@ -1,4 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
 using RentingBooking.Enum;
@@ -7,7 +10,6 @@ using RentingBooking.Service.Interfaces;
 
 namespace RentingBooking.Controllers;
 
-[ApiController]
 [Route("BookingRenting")]
 public class AuthController : Controller
 {
@@ -31,6 +33,16 @@ public class AuthController : Controller
         
         if (response.Success)
         {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, response.Data.Id.ToString()),
+                new Claim(ClaimTypes.Name, response.Data.Username),
+                new Claim(ClaimTypes.Role, response.Data.Role.ToString())
+            };
+
+            var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
             HttpContext.Session.SetString("Username", username);
             if (!string.IsNullOrEmpty(response.Data.Token))
             {
@@ -91,10 +103,11 @@ public class AuthController : Controller
             return View("Login", user);         
         }     
     }
+    [AllowAnonymous]
     [HttpPost("RegisterOwner")]
     public async Task<IActionResult> RegisterOwner(User user)     
     {         
-        var validator = new Validators.UserValidator();         
+        var validator = new Validators.UserValidator();
         var validationResult = await validator.ValidateAsync(user);          
         
         if (!validationResult.IsValid)         
@@ -131,7 +144,8 @@ public class AuthController : Controller
     [HttpGet]
     public async Task<IActionResult> Logout()
     {
-        HttpContext.Session.Remove("Token");
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        HttpContext.Session.Clear();
         return RedirectToAction("Login", "Auth");
     }
 }
