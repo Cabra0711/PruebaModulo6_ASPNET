@@ -1,5 +1,4 @@
 services:
-
   db:
     image: mysql:8.4
     container_name: rentingbooking_db
@@ -21,15 +20,15 @@ services:
 
   api:
     build:
-      context: ./RentingBooking
+      context: .
       dockerfile: Dockerfile
     container_name: rentingbooking_api
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8084:8080"
     environment:
-      ConnectionStrings__MySqlConnection: "Server=db;Port=3306;Database=RentingBooking;User=appuser;Password=apppass123;"
-      JwtSettings__SecretKey: "K9x!pQ7@Lm2#vT8$zR6&yH1*eF5!cN9@uJ3$wD8#sA7"
+      ConnectionStringsMySqlConnection: "Server=db;Port=3306;Database=RentingBooking;User=appuser;Password=apppass123;"
+      JwtSettingsSecretKey: "K9x!pQ7@Lm2#vT8$zR6&yH1*eF5!cN9@uJ3$wD8#sA7"
       ASPNETCORE_ENVIRONMENT: Development
       N8nSettings__BaseUrl: "https://cabra0711.app.n8n.cloud/webhook/email-send"
     depends_on:
