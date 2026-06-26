@@ -87,11 +87,13 @@ public class AuthService : IAuthService
             return response;
         }
 
-        var userExists = await _context.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
+        var userExists = await _context.Users.FirstOrDefaultAsync(u => u.Username == user.Username || u.Email == user.Email);
         if (userExists != null)
         {
             response.Success = false;
-            response.Message = "User Already Exists in the system";
+            response.Message = userExists.Email == user.Email
+                ? "Ya existe una cuenta registrada con este correo electrónico."
+                : "El nombre de usuario ya está en uso.";
             return response;
         }
         else
@@ -120,11 +122,13 @@ public class AuthService : IAuthService
             return response;
         }
 
-        var userExists = await _context.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
+        var userExists = await _context.Users.FirstOrDefaultAsync(u => u.Username == user.Username || u.Email == user.Email);
         if (userExists != null)
         {
             response.Success = false;
-            response.Message = "User Already Exists in the system";
+            response.Message = userExists.Email == user.Email
+                ? "Ya existe una cuenta registrada con este correo electrónico."
+                : "El nombre de usuario ya está en uso.";
             return response;
         }
         else

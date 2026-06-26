@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 using RentingBooking.Enum;
 using RentingBooking.Models;
@@ -97,6 +98,11 @@ public class AuthController : Controller
             ViewBag.Error = "El correo electrónico o el nombre de usuario ya se encuentran registrados.";             
             return View("Login", user);         
         }         
+        catch (DbUpdateException ex) when (ex.InnerException is MySqlException { Number: 1062 })
+        {
+            ViewBag.Error = "El correo electrónico o el nombre de usuario ya se encuentran registrados.";
+            return View("Login", user);
+        }
         catch(Exception ex)         
         {             
             ViewBag.Error = $"Explotó el sistema: {ex.Message}";             
@@ -134,6 +140,11 @@ public class AuthController : Controller
             ViewBag.Error = "El correo electrónico o el nombre de usuario ya se encuentran registrados.";             
             return View("Login", user);         
         }         
+        catch (DbUpdateException ex) when (ex.InnerException is MySqlException { Number: 1062 })
+        {
+            ViewBag.Error = "El correo electrónico o el nombre de usuario ya se encuentran registrados.";
+            return View("Login", user);
+        }
         catch(Exception ex)         
         {             
             ViewBag.Error = $"Explotó el sistema: {ex.Message}";             

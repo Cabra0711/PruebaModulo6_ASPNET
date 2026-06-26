@@ -1,116 +1,99 @@
-﻿@{
+﻿@model RentingBooking.Models.Property?
+
+@{
     ViewData["Title"] = "RentingBooking";
+    var featured = Model;
+    var featuredImage = featured?.Images?.FirstOrDefault()?.Url ?? "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80";
 }
 
-<script src="https://cdn.tailwindcss.com"></script>
+<div class="relative overflow-hidden">
+    <div class="mx-auto grid max-w-7xl gap-12 px-6 pb-16 md:grid-cols-[1.2fr_0.8fr] sm:px-10 lg:gap-20">
+        <section class="flex flex-col justify-center pt-12">
+            <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-[#b41531] shadow-sm shadow-[#f6d7dd]/70">Explora experiencias únicas</p>
+            <h1 class="max-w-2xl text-5xl font-semibold tracking-tight text-slate-950 sm:text-6xl">Encuentra tu próximo hogar lejos del hogar</h1>
+            <p class="mt-6 max-w-xl text-base leading-8 text-slate-600 sm:text-lg">Descubre alojamientos únicos verificados para estancias cortas o prolongadas, con la seguridad y confianza que mereces.</p>
+            <div class="mt-10 flex flex-col gap-4 sm:flex-row">
+                <a asp-controller="Auth" asp-action="Login" class="inline-flex items-center justify-center rounded-full bg-[#b41531] px-8 py-4 text-base font-semibold text-white shadow-[0_20px_40px_rgba(180,21,49,0.25)] transition hover:bg-[#991a30]">Explorar propiedades <span class="ml-3">→</span></a>
+            </div>
+        </section>
 
-<div class="min-h-screen bg-[#fff4f5] text-slate-900">
-    <header class="relative z-10 px-6 py-5 sm:px-10">
-        <div class="mx-auto flex max-w-7xl items-center justify-between">
-            <a asp-controller="Home" asp-action="Index" class="flex items-center gap-3 text-[#b41531]">
-                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fde3e8] text-2xl font-bold">♥</span>
-                <span class="text-lg font-semibold">RentingBooking</span>
-            </a>
-            <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#f0d6db] bg-white text-[#b41531] shadow-sm sm:hidden">
-                <span class="sr-only">Abrir menú</span>
-                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 7h16M4 12h16M4 17h16" />
-                </svg>
-            </button>
-        </div>
-    </header>
-
-    <main class="relative overflow-hidden">
-        <div class="mx-auto grid max-w-7xl gap-12 px-6 pb-16 md:grid-cols-[1.2fr_0.8fr] sm:px-10 lg:gap-20">
-            <section class="flex flex-col justify-center pt-12">
-                <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-[#b41531] shadow-sm shadow-[#f6d7dd]/70">Explora experiencias únicas</p>
-                <h1 class="max-w-2xl text-5xl font-semibold tracking-tight text-slate-950 sm:text-6xl">Encuentra tu próximo hogar lejos del hogar</h1>
-                <p class="mt-6 max-w-xl text-base leading-8 text-slate-600 sm:text-lg">Descubre alojamientos únicos verificados para estancias cortas o prolongadas, con la seguridad y confianza que mereces.</p>
-                <div class="mt-10 flex flex-col gap-4 sm:flex-row">
-                    <a asp-controller="Auth" asp-action="Login" class="inline-flex items-center justify-center rounded-full bg-[#b41531] px-8 py-4 text-base font-semibold text-white shadow-[0_20px_40px_rgba(180,21,49,0.25)] transition hover:bg-[#991a30]">Explorar propiedades <span class="ml-3">→</span></a>
-                </div>
-            </section>
-
-            <section class="relative overflow-hidden rounded-[40px] bg-slate-950 p-6 text-white shadow-[0_40px_120px_rgba(0,0,0,0.18)] sm:p-8">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(238,84,112,0.35),_transparent_50%)]"></div>
-                <div class="relative flex h-full flex-col justify-end gap-6">
-                    <div class="relative rounded-[32px] bg-[url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center p-8 shadow-[0_35px_80px_rgba(0,0,0,0.35)]" style="min-height:340px;">
-                        <div class="absolute inset-0 rounded-[32px] bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
-                        <div class="relative flex h-full flex-col justify-end gap-4">
-                            <span class="inline-flex items-center gap-2 rounded-full bg-[#b41531] px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white">Nuevo</span>
+        <section class="relative overflow-hidden rounded-[40px] bg-slate-950 p-6 text-white shadow-[0_40px_120px_rgba(0,0,0,0.18)] sm:p-8">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(238,84,112,0.35),_transparent_50%)]"></div>
+            <div class="relative flex h-full flex-col justify-end gap-6">
+                <div class="relative rounded-[32px] bg-cover bg-center p-8 shadow-[0_35px_80px_rgba(0,0,0,0.35)]" style="background-image: url('@featuredImage'); min-height:340px;">
+                    <div class="absolute inset-0 rounded-[32px] bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+                    <div class="relative flex h-full flex-col justify-end gap-4">
+                        <span class="inline-flex items-center gap-2 rounded-full bg-[#b41531] px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white">Destacado</span>
+                        @if (featured != null)
+                        {
+                            <a asp-controller="Property" asp-action="GetPropertyById" asp-route-id="@featured.Id" class="block">
+                                <p class="text-lg font-semibold leading-tight hover:text-[#f5c6ce] transition">@featured.Title — @featured.PricePerNight.ToString("C")/noche</p>
+                                <p class="text-sm text-slate-300 mt-1">@featured.Location</p>
+                            </a>
+                        }
+                        else
+                        {
                             <p class="text-lg font-semibold leading-tight">Tu hogar ideal te espera con vistas y confort excepcionales.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <div class="mx-auto max-w-7xl px-6 pb-16 sm:px-10">
-            <div class="grid gap-6 rounded-[32px] bg-white p-8 shadow-[0_30px_80px_rgba(15,23,42,0.08)] sm:grid-cols-3">
-                <div class="rounded-[28px] border border-[#f4d7dc] bg-[#fff1f3] p-6">
-                    <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-white text-[#b41531] shadow-sm">
-                        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 3C9.23858 3 7 5.23858 7 8C7 11.55 12 18 12 18C12 18 17 11.55 17 8C17 5.23858 14.7614 3 12 3Z" />
-                            <circle cx="12" cy="8" r="2" />
-                        </svg>
-                    </div>
-                    <h2 class="mb-3 text-xl font-semibold text-slate-950">Validación de identidad</h2>
-                    <p class="text-sm leading-7 text-slate-600">Seguridad ante todo. Verificamos la identidad de todos nuestros usuarios para garantizar una comunidad confiable.</p>
-                </div>
-                <div class="rounded-[28px] border border-[#f4d7dc] bg-[#fff1f3] p-6">
-                    <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-white text-[#b41531] shadow-sm">
-                        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M2 12H22" />
-                            <path d="M6 8L2 12L6 16" />
-                            <path d="M18 8L22 12L18 16" />
-                        </svg>
-                    </div>
-                    <h2 class="mb-3 text-xl font-semibold text-slate-950">Reserva sin fricción</h2>
-                    <p class="text-sm leading-7 text-slate-600">Procesos optimizados para que encuentres y reserves tu próxima estancia en cuestión de minutos, sin complicaciones.</p>
-                </div>
-                <div class="rounded-[28px] border border-[#f4d7dc] bg-[#fff1f3] p-6">
-                    <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-white text-[#b41531] shadow-sm">
-                        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 5C7 5 4 8 4 12C4 16 7 19 12 19C17 19 20 16 20 12C20 8 17 5 12 5Z" />
-                            <path d="M12 8.5C13.1046 8.5 14 9.39543 14 10.5C14 11.6046 13.1046 12.5 12 12.5C10.8954 12.5 10 11.6046 10 10.5C10 9.39543 10.8954 8.5 12 8.5Z" />
-                        </svg>
-                    </div>
-                    <h2 class="mb-3 text-xl font-semibold text-slate-950">Propietarios verificados</h2>
-                    <p class="text-sm leading-7 text-slate-600">Cada propiedad es revisada minuciosamente. Solo listamos dueños comprometidos con la excelencia y la hospitalidad.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="mx-auto max-w-7xl px-6 pb-24 sm:px-10">
-            <div class="grid gap-8 rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.08)] md:grid-cols-[1.2fr_auto] lg:p-8">
-                <div class="space-y-6">
-                    <div class="overflow-hidden rounded-[28px] bg-[url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center h-72"></div>
-                    <div>
-                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-[#b41531]">Anfitriones</p>
-                        <h2 class="mt-4 text-3xl font-semibold text-slate-950">¿Tienes una propiedad?</h2>
-                        <p class="mt-4 max-w-xl text-sm leading-7 text-slate-600">Únete a miles de propietarios que ya están rentabilizando sus espacios con RentingBooking. Nosotros nos encargamos de la gestión y la seguridad.</p>
-                    </div>
-                </div>
-                <div class="flex items-end rounded-[28px] bg-[#1f1413] p-8 text-white">
-                    <div class="w-full">
-                        <p class="text-base font-semibold">Regístrate como propietario</p>
-                        <p class="mt-4 text-sm text-slate-300">Comienza a recibir huéspedes y maximiza tus ingresos con una experiencia segura y profesional.</p>
-                        <a asp-controller="Auth" asp-action="Login" asp-route-tab="owner" class="mt-8 inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-4 text-sm font-semibold text-[#1f1413] transition hover:bg-[#f1f1f1]">Regístrate como propietario →</a>
+                        }
                     </div>
                 </div>
             </div>
-        </div>
-    </main>
+        </section>
+    </div>
 
-    <footer class="border-t border-[#f4d7dc] bg-[#fff4f5] py-8 px-6 sm:px-10">
-        <div class="mx-auto flex max-w-7xl flex-col gap-6 text-center text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-            <p class="font-semibold text-[#b41531]">RentingBooking</p>
-            <div class="flex flex-wrap items-center justify-center gap-4">
-                <a href="#" class="transition hover:text-[#b41531]">Privacy</a>
-                <a href="#" class="transition hover:text-[#b41531]">Terms</a>
-                <a href="#" class="transition hover:text-[#b41531]">Sitemap</a>
-                <a href="#" class="transition hover:text-[#b41531]">Destinations</a>
+    <div class="mx-auto max-w-7xl px-6 pb-16 sm:px-10">
+        <div class="grid gap-6 rounded-[32px] bg-white p-8 shadow-[0_30px_80px_rgba(15,23,42,0.08)] sm:grid-cols-3">
+            <div class="rounded-[28px] border border-[#f4d7dc] bg-[#fff1f3] p-6">
+                <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-white text-[#b41531] shadow-sm">
+                    <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3C9.23858 3 7 5.23858 7 8C7 11.55 12 18 12 18C12 18 17 11.55 17 8C17 5.23858 14.7614 3 12 3Z" />
+                        <circle cx="12" cy="8" r="2" />
+                    </svg>
+                </div>
+                <h2 class="mb-3 text-xl font-semibold text-slate-950">Validación de identidad</h2>
+                <p class="text-sm leading-7 text-slate-600">Seguridad ante todo. Verificamos la identidad de todos nuestros usuarios para garantizar una comunidad confiable.</p>
+            </div>
+            <div class="rounded-[28px] border border-[#f4d7dc] bg-[#fff1f3] p-6">
+                <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-white text-[#b41531] shadow-sm">
+                    <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12H22" />
+                        <path d="M6 8L2 12L6 16" />
+                        <path d="M18 8L22 12L18 16" />
+                    </svg>
+                </div>
+                <h2 class="mb-3 text-xl font-semibold text-slate-950">Reserva sin fricción</h2>
+                <p class="text-sm leading-7 text-slate-600">Procesos optimizados para que encuentres y reserves tu próxima estancia en cuestión de minutos, sin complicaciones.</p>
+            </div>
+            <div class="rounded-[28px] border border-[#f4d7dc] bg-[#fff1f3] p-6">
+                <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-white text-[#b41531] shadow-sm">
+                    <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5C7 5 4 8 4 12C4 16 7 19 12 19C17 19 20 16 20 12C20 8 17 5 12 5Z" />
+                        <path d="M12 8.5C13.1046 8.5 14 9.39543 14 10.5C14 11.6046 13.1046 12.5 12 12.5C10.8954 12.5 10 11.6046 10 10.5C10 9.39543 10.8954 8.5 12 8.5Z" />
+                    </svg>
+                </div>
+                <h2 class="mb-3 text-xl font-semibold text-slate-950">Propietarios verificados</h2>
+                <p class="text-sm leading-7 text-slate-600">Cada propiedad es revisada minuciosamente. Solo listamos dueños comprometidos con la excelencia y la hospitalidad.</p>
             </div>
         </div>
-    </footer>
+    </div>
+
+    <div class="mx-auto max-w-7xl px-6 pb-24 sm:px-10">
+        <div class="grid gap-8 rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.08)] md:grid-cols-[1.2fr_auto] lg:p-8">
+            <div class="space-y-6">
+                <div class="overflow-hidden rounded-[28px] bg-[url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center h-72"></div>
+                <div>
+                    <p class="text-sm font-semibold uppercase tracking-[0.28em] text-[#b41531]">Anfitriones</p>
+                    <h2 class="mt-4 text-3xl font-semibold text-slate-950">¿Tienes una propiedad?</h2>
+                    <p class="mt-4 max-w-xl text-sm leading-7 text-slate-600">Únete a miles de propietarios que ya están rentabilizando sus espacios con RentingBooking. Nosotros nos encargamos de la gestión y la seguridad.</p>
+                </div>
+            </div>
+            <div class="flex items-end rounded-[28px] bg-[#1f1413] p-8 text-white">
+                <div class="w-full">
+                    <p class="text-base font-semibold">Regístrate como propietario</p>
+                    <p class="mt-4 text-sm text-slate-300">Comienza a recibir huéspedes y maximiza tus ingresos con una experiencia segura y profesional.</p>
+                    <a asp-controller="Auth" asp-action="Login" asp-route-tab="owner" class="mt-8 inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-4 text-sm font-semibold text-[#1f1413] transition hover:bg-[#f1f1f1]">Regístrate como propietario →</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

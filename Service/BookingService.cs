@@ -20,6 +20,21 @@ public class BookingService : IBookingService
     {
         var response = new ServiceResponse<Booking>();
 
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (checkIn < today)
+        {
+            response.Success = false;
+            response.Message = "La fecha de check-in no puede ser anterior a la fecha actual.";
+            return response;
+        }
+
+        if (checkOut <= checkIn)
+        {
+            response.Success = false;
+            response.Message = "Check-out date must be after check-in date.";
+            return response;
+        }
+
         var property = await _dbContext.Properties.FirstOrDefaultAsync(p => p.Id == propertyId && p.IsActive);
         if (property == null)
         {
@@ -29,20 +44,12 @@ public class BookingService : IBookingService
         }
 
         var guest = await _dbContext.Users
-            .Include(u => u.KycVerification)
             .FirstOrDefaultAsync(u => u.Id == guestId);
 
         if (guest == null)
         {
             response.Success = false;
             response.Message = "Guest not found.";
-            return response;
-        }
-
-        if (guest.KycVerification == null || guest.KycVerification.Status != KycStatus.Accepted)
-        {
-            response.Success = false;
-            response.Message = "KYC must be accepted before creating a booking.";
             return response;
         }
 
@@ -83,6 +90,7 @@ public class BookingService : IBookingService
     {
         var bookings = await _dbContext.Bookings
             .Include(b => b.Property)
+                .ThenInclude(p => p.Images)
             .Where(b => b.GuestId == userId)
             .ToListAsync();
 
@@ -108,6 +116,8 @@ public class BookingService : IBookingService
 
         var bookings = await _dbContext.Bookings
             .Include(b => b.Guest)
+            .Include(b => b.Property)
+                .ThenInclude(p => p.Images)
             .Where(b => b.PropertyId == propertyId)
             .ToListAsync();
 
@@ -158,6 +168,7 @@ public class BookingService : IBookingService
     {
         var booking = await _dbContext.Bookings
             .Include(b => b.Property)
+                .ThenInclude(p => p.Images)
             .Include(b => b.Guest)
             .FirstOrDefaultAsync(b => b.Id == bookingId);
         if (booking == null)
@@ -175,5 +186,54 @@ public class BookingService : IBookingService
             Data = booking,
             Message = "Booking retrieved successfully."
         };
+    }
+    public async Task<ServiceResponse<bool>> PayBooking(Guid bookingId, Guid userId)
+    {
+        var response = new ServiceResponse<bool>();
+        var booking = await _dbContext.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId);
+
+        if (booking == null)
+        {
+            response.Success = false;
+            response.Message = "Booking not found.";
+            return response;
+        }
+
+        if (booking.GuestId != userId)
+        {
+            response.Success = false;
+            response.Message = "Only the guest who created the booking can pay it.";
+            return response;
+        }
+
+        if (booking.Status != BookingStatus.PendingPayment)
+        {
+            response.Success = false;
+            response.Message = "Only bookings with status PendingPayment can be paid.";
+            return response;
+        }
+
+        booking.Status = BookingStatus.Paid;
+        await _dbContext.SaveChangesAsync();
+
+        response.Success = true;
+        response.Data = true;
+        response.Message = "Booking paid successfully.";
+        return response;
+    }
+
+    public async Task<ServiceResponse<bool>> ApproveBooking(Guid bookingId, Guid ownerId)
+    {
+        var booking = await _dbContext.Bookings
+            .Include(b => b.Property)
+            .FirstOrDefaultAsync(b => b.Id == bookingId && b.Property.HostId == ownerId);
+    
+        if (booking == null)
+            return new ServiceResponse<bool> { Success = false, Message = "Reserva no encontrada." };
+    
+        booking.Status = Enum.BookingStatus.Paid;
+        await _dbContext.SaveChangesAsync();
+    
+        return new ServiceResponse<bool> { Success = true, Data = true, Message = "Reserva aprobada." };
     }
 }

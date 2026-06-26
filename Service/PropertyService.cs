@@ -17,6 +17,9 @@ public class PropertyService : IPropertyService
     public async Task<ServiceResponse<IEnumerable<Property>>> GetPublicProperties()
     {
         var properties = await _dbContext.Properties
+            .Include(p => p.Images)
+            .Include(p => p.Features)
+            .Include(p => p.Reviews)
             .Where(p => p.IsActive)
             .ToListAsync();
 
@@ -31,6 +34,10 @@ public class PropertyService : IPropertyService
     public async Task<ServiceResponse<IEnumerable<Property>>> GetPropertiesByHost(Guid hostId)
     {
         var properties = await _dbContext.Properties
+            .Include(p => p.Images)
+            .Include(p => p.Features)
+            .Include(p => p.Bookings)
+            .Include(p => p.Reviews)
             .Where(p => p.HostId == hostId)
             .ToListAsync();
 
@@ -45,7 +52,13 @@ public class PropertyService : IPropertyService
     public async Task<ServiceResponse<Property>> GetPropertyById(Guid id)
     {
         var response = new ServiceResponse<Property>();
-        var property = await _dbContext.Properties.FirstOrDefaultAsync(p => p.Id == id);
+        var property = await _dbContext.Properties
+            .Include(p => p.Images)
+            .Include(p => p.Features)
+            .Include(p => p.Reviews)
+                .ThenInclude(r => r.User)
+            .Include(p => p.Host)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
         if (property != null)
         {
@@ -66,7 +79,7 @@ public class PropertyService : IPropertyService
     {
         var response = new ServiceResponse<Property>();
         
-        var exists = await _dbContext.Properties.AnyAsync(p => p.HostId == hostId && p.Title == property.Title );
+        var exists = await _dbContext.Properties.AnyAsync(p => p.HostId == hostId && p.Title == property.Title);
 
         if (exists)
         {
@@ -79,6 +92,17 @@ public class PropertyService : IPropertyService
         property.IsActive = true;
         property.CreatedAt = DateTime.UtcNow;
 
+        if (property.Images != null)
+        {
+            property.Images = property.Images.Where(i => !string.IsNullOrWhiteSpace(i.Url)).ToList();
+        }
+
+        if (property.Features != null)
+        {
+            property.Features.PropertyId = property.Id;
+            property.Features.CreatedAt = DateTime.UtcNow;
+        }
+
         await _dbContext.Properties.AddAsync(property);
         await _dbContext.SaveChangesAsync();
         
@@ -88,15 +112,15 @@ public class PropertyService : IPropertyService
         return response;
     }
 
-    // AÑADIDO: Guid hostId en los parámetros
     public async Task<ServiceResponse<Property>> UpdateProperty(Property property, Guid id, Guid hostId)
     {
         var response = new ServiceResponse<Property>();
-        var exists = await _dbContext.Properties.FindAsync(id);
+        var exists = await _dbContext.Properties
+            .Include(p => p.Features)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
         if (exists != null)
         {
-            // AÑADIDO: Filtro de seguridad multitenant
             if (exists.HostId != hostId)
             {
                 response.Success = false;
@@ -104,10 +128,47 @@ public class PropertyService : IPropertyService
                 return response;
             }
 
-            exists.Title =  property.Title;
+            exists.Title = property.Title;
             exists.Description = property.Description;
             exists.Location = property.Location;
             exists.PricePerNight = property.PricePerNight;
+            exists.RowVersion = property.RowVersion;
+
+            var existingImages = await _dbContext.PropertyImages.Where(i => i.PropertyId == id).ToListAsync();
+            _dbContext.PropertyImages.RemoveRange(existingImages);
+
+            if (property.Images != null)
+            {
+                var newImages = property.Images
+                    .Where(i => !string.IsNullOrWhiteSpace(i.Url))
+                    .Select(i => new PropertyImage { PropertyId = id, Url = i.Url, Order = i.Order })
+                    .ToList();
+                await _dbContext.PropertyImages.AddRangeAsync(newImages);
+            }
+
+            if (property.Features != null)
+            {
+                if (exists.Features != null)
+                {
+                    exists.Features.Bedrooms = property.Features.Bedrooms;
+                    exists.Features.Bathrooms = property.Features.Bathrooms;
+                    exists.Features.MaxGuests = property.Features.MaxGuests;
+                    exists.Features.Beds = property.Features.Beds;
+                    exists.Features.HasWifi = property.Features.HasWifi;
+                    exists.Features.HasAC = property.Features.HasAC;
+                    exists.Features.HasKitchen = property.Features.HasKitchen;
+                    exists.Features.HasParking = property.Features.HasParking;
+                    exists.Features.HasTV = property.Features.HasTV;
+                    exists.Features.HasPool = property.Features.HasPool;
+                }
+                else
+                {
+                    property.Features.PropertyId = id;
+                    property.Features.CreatedAt = DateTime.UtcNow;
+                    _dbContext.PropertyFeatures.Add(property.Features);
+                }
+            }
+
             await _dbContext.SaveChangesAsync();
             
             response.Data = exists;
@@ -123,7 +184,6 @@ public class PropertyService : IPropertyService
         }
     }
 
-    // AÑADIDO: Guid hostId en los parámetros
     public async Task<ServiceResponse<Property>> DeleteProperty(Guid id, Guid hostId)
     {
         var response = new ServiceResponse<Property>();
@@ -131,7 +191,6 @@ public class PropertyService : IPropertyService
 
         if (exists != null)
         {
-            // AÑADIDO: Filtro de seguridad multitenant
             if (exists.HostId != hostId)
             {
                 response.Success = false;
@@ -153,5 +212,24 @@ public class PropertyService : IPropertyService
             response.Message = "Property Not Found";
             return response;
         }
+    }
+
+    public async Task<ServiceResponse<Property>> GetFeaturedProperty()
+    {
+        var property = await _dbContext.Properties
+            .Include(p => p.Images)
+            .Include(p => p.Features)
+            .Include(p => p.Reviews)
+            .Where(p => p.IsActive)
+            .OrderByDescending(p => p.Bookings!.Count)
+            .ThenByDescending(p => p.CreatedAt)
+            .FirstOrDefaultAsync();
+
+        return new ServiceResponse<Property>
+        {
+            Data = property,
+            Success = property != null,
+            Message = property != null ? "Featured property found." : "No properties available."
+        };
     }
 }

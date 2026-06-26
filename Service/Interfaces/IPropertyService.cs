@@ -15,4 +15,5 @@ public interface IPropertyService
 
     Task<ServiceResponse<Property>> UpdateProperty(Property property, Guid id, Guid hostId);
     Task<ServiceResponse<Property>> DeleteProperty(Guid id, Guid hostId);
+    Task<ServiceResponse<Property>> GetFeaturedProperty();
 }

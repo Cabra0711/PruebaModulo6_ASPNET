@@ -10,4 +10,6 @@ public interface IBookingService
     Task<ServiceResponse<IEnumerable<Booking>>> GetBookingsByProperty(Guid propertyId, Guid hostId);
     Task<ServiceResponse<bool>> CancelBooking(Guid bookingId, Guid userId);
     Task<ServiceResponse<Booking>> GetBookingById(Guid bookingId);
+    Task<ServiceResponse<bool>> ApproveBooking(Guid bookingId, Guid ownerId);
+    Task<ServiceResponse<bool>> PayBooking(Guid bookingId, Guid userId);
 }

@@ -10,30 +10,50 @@
     var cleaningFee = Math.Round(pricePerNight * 0.075m, 2);
     var serviceFee = Math.Round(pricePerNight * nights * 0.137m, 2);
     var total = subtotal + cleaningFee + serviceFee;
+
+    var features = Model.Features;
 }
 
-<script src="https://cdn.tailwindcss.com"></script>
-
-<div class="min-h-screen bg-[#fff4f5] px-4 py-10 text-slate-900 sm:px-6 lg:px-8">
+<div class="mx-auto max-w-md">
     <div class="mx-auto max-w-md">
         <div class="rounded-[32px] bg-white shadow-[0_25px_80px_rgba(15,23,42,0.12)]">
-            <div class="rounded-t-[32px] bg-[#fde3e8] px-6 py-5 text-sm text-[#7d141f] shadow-sm">
-                <div class="flex items-start gap-3">
-                    <div class="mt-0.5 rounded-full bg-[#fce4e9] p-2 text-[#b41531]">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 8v4" />
-                            <path d="M12 16h.01" />
-                            <path d="M21 12c0 4.9706-4.0294 9-9 9s-9-4.0294-9-9 4.0294-9 9-9 9 4.0294 9 9z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="font-semibold">KYC verification incomplete.</p>
-                        <p class="mt-2 text-sm leading-6 text-slate-700">Please upload your ID to finish the booking or check for date overlaps in your calendar.</p>
-                    </div>
-                </div>
-            </div>
             <div class="px-6 py-7">
                 <h1 class="text-3xl font-semibold text-slate-950">@Model.Title</h1>
+
+                @if (features != null)
+                {
+                    <div class="mt-4 rounded-[24px] bg-[#fff6f8] border border-[#f4d7dc] p-4">
+                        <h3 class="text-sm font-semibold text-slate-950 mb-3">Características</h3>
+                        <div class="grid grid-cols-2 gap-2 text-sm text-slate-700">
+                            <div class="flex items-center gap-2">
+                                <svg class="h-4 w-4 text-[#b41531]" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13H11V3H3V13ZM13 21H21V11H13V21ZM13 3V9H21V3H13ZM3 15H9V21H3V15Z"/></svg>
+                                <span>@features.Bedrooms hab · @features.Bathrooms baños</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="h-4 w-4 text-[#b41531]" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5C14.34 5 13 6.34 13 8S14.34 11 16 11ZM8 11C9.66 11 11 9.66 11 8S9.66 5 8 5C6.34 5 5 6.34 5 8S6.34 11 8 11ZM8 13C5.67 13 1 14.17 1 16.5V19H15V16.5C15 14.17 10.33 13 8 13ZM16 13C15.3 13 14.38 13.13 13.38 13.37C14.52 14.13 15 15.12 15 16.5V19H23V16.5C23 14.17 18.33 13 16 13Z"/></svg>
+                                <span>@features.MaxGuests huéspedes</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="h-4 w-4 text-[#b41531]" viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-2 .9-2 2S5.9 22 7 22S9 21.1 9 20S8.1 18 7 18ZM17 18c-1.1 0-2 .9-2 2S15.9 22 17 22S19 21.1 19 20S18.1 18 17 18ZM7 14V10H21L19 14H7ZM7 7V3H21V7H7Z"/></svg>
+                                <span>@features.Beds camas</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                @if (features.HasWifi)
+                                {
+                                    <svg class="h-4 w-4 text-[#b41531]" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9L3 11C7.97 6.03 16.03 6.03 21 11L23 9C17.07 3.07 6.93 3.07 1 9ZM9 17L12 20L15 17C13.35 15.34 10.65 15.34 9 17ZM5 13L7 15C9.76 12.24 14.24 12.24 17 15L19 13C15.14 9.14 8.87 9.14 5 13Z"/></svg>
+                                    <span>WiFi</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="mt-2 flex flex-wrap gap-1">
+                            @if (features.HasAC) { <span class="inline-block rounded-full bg-[#fde3e8] px-2 py-0.5 text-xs text-[#b41531]">A/C</span> }
+                            @if (features.HasKitchen) { <span class="inline-block rounded-full bg-[#fde3e8] px-2 py-0.5 text-xs text-[#b41531]">Cocina</span> }
+                            @if (features.HasParking) { <span class="inline-block rounded-full bg-[#fde3e8] px-2 py-0.5 text-xs text-[#b41531]">Estac.</span> }
+                            @if (features.HasTV) { <span class="inline-block rounded-full bg-[#fde3e8] px-2 py-0.5 text-xs text-[#b41531]">TV</span> }
+                            @if (features.HasPool) { <span class="inline-block rounded-full bg-[#fde3e8] px-2 py-0.5 text-xs text-[#b41531]">Piscina</span> }
+                        </div>
+                    </div>
+                }
 
                 <div class="mt-6 grid gap-3 rounded-[28px] border border-[#e9d6dc] p-4 text-sm text-slate-600 sm:grid-cols-2">
                     <div class="rounded-[22px] border border-[#e9d6dc] bg-white p-4">

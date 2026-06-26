@@ -12,4 +12,6 @@ public class DashboardViewModel
     public Guid? SelectedPropertyId { get; set; }
     public DateTime? From { get; set; }
     public DateTime? To { get; set; }
+    public Dictionary<string, decimal> RevenueByMonth { get; set; } = new();
+    public int UpcomingBookingsCount { get; set; }
 }

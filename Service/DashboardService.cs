@@ -48,6 +48,20 @@ public class DashboardService : IDashboardService
         var totalAvailableDays = totalRooms * (rangeEnd - rangeStart).TotalDays;
         var occupancyRate = totalAvailableDays > 0 ? Math.Round((occupiedDays / totalAvailableDays) * 100, 2) : 0;
 
+        var upcomingBookingsCount = await _db.Bookings
+            .Include(b => b.Property)
+            .Where(b => b.Property.HostId == hostId && b.CheckInDate >= DateOnly.FromDateTime(DateTime.Today) && b.Status != Enum.BookingStatus.Canceled)
+            .CountAsync();
+
+        var revenueByMonth = bookings
+            .Where(b => b.Status != Enum.BookingStatus.Canceled)
+            .GroupBy(b => new { b.CheckInDate.Year, b.CheckInDate.Month })
+            .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+            .ToDictionary(
+                g => $"{g.Key.Year}-{g.Key.Month:D2}",
+                g => g.Sum(b => b.Property.PricePerNight * (decimal)(b.CheckOutDate.DayNumber - b.CheckInDate.DayNumber))
+            );
+
         var model = new DashboardViewModel
         {
             TotalBookings = totalBookings,
@@ -57,7 +71,9 @@ public class DashboardService : IDashboardService
             RecentBookings = bookings.OrderByDescending(b => b.CreatedAt).Take(10),
             SelectedPropertyId = propertyId,
             From = from,
-            To = to
+            To = to,
+            RevenueByMonth = revenueByMonth,
+            UpcomingBookingsCount = upcomingBookingsCount
         };
 
         return new ServiceResponse<DashboardViewModel>
@@ -95,18 +111,32 @@ public class DashboardService : IDashboardService
         sheet.Cells[1, 8].Value = "Revenue";
 
         var row = 2;
-        foreach (var booking in bookings)
+        if (bookings.Count == 0)
         {
-            var nights = booking.CheckOutDate.DayNumber - booking.CheckInDate.DayNumber;
-            sheet.Cells[row, 1].Value = booking.Id.ToString();
-            sheet.Cells[row, 2].Value = booking.Property?.Title;
-            sheet.Cells[row, 3].Value = booking.Guest?.Username ?? booking.Guest?.Email;
-            sheet.Cells[row, 4].Value = booking.CheckInDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            sheet.Cells[row, 5].Value = booking.CheckOutDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            sheet.Cells[row, 6].Value = booking.Status.ToString();
-            sheet.Cells[row, 7].Value = nights;
-            sheet.Cells[row, 8].Value = booking.Property?.PricePerNight * nights;
-            row++;
+            sheet.Cells[row, 1].Value = "Sin reservas";
+            sheet.Cells[row, 2].Value = "";
+            sheet.Cells[row, 3].Value = "";
+            sheet.Cells[row, 4].Value = "";
+            sheet.Cells[row, 5].Value = "";
+            sheet.Cells[row, 6].Value = "";
+            sheet.Cells[row, 7].Value = "";
+            sheet.Cells[row, 8].Value = "";
+        }
+        else
+        {
+            foreach (var booking in bookings)
+            {
+                var nights = booking.CheckOutDate.DayNumber - booking.CheckInDate.DayNumber;
+                sheet.Cells[row, 1].Value = booking.Id.ToString();
+                sheet.Cells[row, 2].Value = booking.Property?.Title;
+                sheet.Cells[row, 3].Value = booking.Guest?.Username ?? booking.Guest?.Email;
+                sheet.Cells[row, 4].Value = booking.CheckInDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                sheet.Cells[row, 5].Value = booking.CheckOutDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                sheet.Cells[row, 6].Value = booking.Status.ToString();
+                sheet.Cells[row, 7].Value = nights;
+                sheet.Cells[row, 8].Value = booking.Property?.PricePerNight * nights;
+                row++;
+            }
         }
 
         if (sheet.Dimension != null)

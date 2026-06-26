@@ -44,14 +44,14 @@ public class OwnerController : Controller
         if (ownerId == Guid.Empty)
             return RedirectToAction("Login", "Auth");
 
-        var user = await _userService.GetUserByIdAsync(ownerId);
-        if (user == null)
+        var dashboardResponse = await _dashboardService.GetDashboard(ownerId, null, null, null);
+        if (!dashboardResponse.Success)
         {
-            TempData["ErrorMessage"] = "User not found.";
-            return RedirectToAction("Login", "Auth");
+            TempData["ErrorMessage"] = dashboardResponse.Message;
+            return RedirectToAction("OwnerLanding");
         }
 
-        return View(user.Data);
+        return View(dashboardResponse.Data);
     }
 
     [HttpGet("Dashboard")]

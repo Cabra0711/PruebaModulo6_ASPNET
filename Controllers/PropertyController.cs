@@ -67,6 +67,7 @@ public class PropertyController : Controller
 
         if (!ModelState.IsValid)
         {
+            TempData["ErrorMessage"] = "No se pudo crear la propiedad. Revisa los campos del formulario.";
             return View(property);
         }
 
@@ -83,7 +84,7 @@ public class PropertyController : Controller
 
 
     [Authorize(Roles = "Owner")]
-    [HttpGet("edit/{id:guid}")]
+    [HttpGet("UpdateProperty/{id:guid}")]
     public async Task<IActionResult> UpdateProperty(Guid id)
     {
         var hostId = GetUserIdFromToken();
@@ -102,7 +103,7 @@ public class PropertyController : Controller
 
    
     [Authorize(Roles = "Owner")]
-    [HttpPost("edit/{id:guid}")]
+    [HttpPost("UpdateProperty/{id:guid}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateProperty(Guid id, Property property)
     {
@@ -111,14 +112,17 @@ public class PropertyController : Controller
 
         if (!ModelState.IsValid)
         {
-            return View(property);
+            TempData["ErrorMessage"] = "No se pudieron guardar los cambios. Revisa los campos del formulario.";
+            var reloaded = await _propertyService.GetPropertyById(id);
+            return View(reloaded.Data ?? property);
         }
 
         var response = await _propertyService.UpdateProperty(property, id,  hostId);
         if (!response.Success)
         {
             TempData["ErrorMessage"] = response.Message;
-            return View(property);
+            var reloaded = await _propertyService.GetPropertyById(id);
+            return View(reloaded.Data ?? property);
         }
 
         TempData["SuccessMessage"] = response.Message;
@@ -127,7 +131,7 @@ public class PropertyController : Controller
 
 
     [Authorize(Roles = "Owner")]
-    [HttpPost("delete/{id:guid}")]
+    [HttpPost("DeleteProperty/{id:guid}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteProperty(Guid id)
     {

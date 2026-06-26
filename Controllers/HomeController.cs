@@ -1,14 +1,23 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using RentingBooking.Models;
+using RentingBooking.Service.Interfaces;
 
 namespace RentingBooking.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly IPropertyService _propertyService;
+
+    public HomeController(IPropertyService propertyService)
     {
-        return View();
+        _propertyService = propertyService;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var featured = await _propertyService.GetFeaturedProperty();
+        return View(featured.Data);
     }
 
     public IActionResult Privacy()

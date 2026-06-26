@@ -15,6 +15,8 @@ public static class DbInitializer
         if (await context.Users.AnyAsync() || await context.Properties.AnyAsync() ||
             await context.Bookings.AnyAsync() || await context.WishlistItems.AnyAsync())
         {
+            context.Reviews.RemoveRange(context.Reviews);
+            context.PropertyFeatures.RemoveRange(context.PropertyFeatures);
             context.NotificationLogs.RemoveRange(context.NotificationLogs);
             context.WishlistItems.RemoveRange(context.WishlistItems);
             context.Bookings.RemoveRange(context.Bookings);
@@ -157,6 +159,52 @@ public static class DbInitializer
         context.Properties.AddRange(properties);
         await context.SaveChangesAsync();
 
+        // ── PropertyFeatures ─────────────────────────────────────────────
+        context.PropertyFeatures.AddRange(new List<PropertyFeature>
+        {
+            new()
+            {
+                Id = Guid.Parse("f3000001-0000-0000-0000-000000000001"),
+                PropertyId = p1,
+                Bedrooms = 4, Bathrooms = 3, Beds = 5, MaxGuests = 8,
+                HasWifi = true, HasAC = true, HasKitchen = true, HasParking = true, HasTV = true, HasPool = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.Parse("f3000002-0000-0000-0000-000000000002"),
+                PropertyId = p2,
+                Bedrooms = 2, Bathrooms = 1, Beds = 2, MaxGuests = 4,
+                HasWifi = true, HasAC = false, HasKitchen = true, HasParking = true, HasTV = true, HasPool = false,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.Parse("f3000003-0000-0000-0000-000000000003"),
+                PropertyId = p3,
+                Bedrooms = 1, Bathrooms = 1, Beds = 1, MaxGuests = 2,
+                HasWifi = true, HasAC = true, HasKitchen = true, HasParking = false, HasTV = true, HasPool = false,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.Parse("f3000004-0000-0000-0000-000000000004"),
+                PropertyId = p4,
+                Bedrooms = 3, Bathrooms = 2, Beds = 3, MaxGuests = 6,
+                HasWifi = true, HasAC = false, HasKitchen = true, HasParking = true, HasTV = true, HasPool = false,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.Parse("f3000005-0000-0000-0000-000000000005"),
+                PropertyId = p5,
+                Bedrooms = 1, Bathrooms = 1, Beds = 1, MaxGuests = 2,
+                HasWifi = true, HasAC = true, HasKitchen = true, HasParking = false, HasTV = false, HasPool = false,
+                CreatedAt = DateTime.UtcNow
+            }
+        });
+        await context.SaveChangesAsync();
+
         // ── PropertyImages ───────────────────────────────────────────────
         context.PropertyImages.AddRange(new List<PropertyImage>
         {
@@ -256,6 +304,44 @@ public static class DbInitializer
                 TotalPrice = 120.00m * 4,
                 Status = BookingStatus.Paid,
                 CreatedAt = DateTime.UtcNow.AddDays(-3)
+            }
+        });
+        await context.SaveChangesAsync();
+
+        // ── Reviews ──────────────────────────────────────────────────────
+        context.Reviews.AddRange(new List<Review>
+        {
+            new()
+            {
+                Id = Guid.Parse("f4000001-0000-0000-0000-000000000001"),
+                PropertyId = p1, UserId = customerId,
+                Rating = 5,
+                Comment = "¡Increíble experiencia! La vista al mar es espectacular y la piscina infinita es un sueño. Volveremos sin duda.",
+                CreatedAt = DateTime.UtcNow.AddDays(-14)
+            },
+            new()
+            {
+                Id = Guid.Parse("f4000002-0000-0000-0000-000000000002"),
+                PropertyId = p4, UserId = customerId,
+                Rating = 4,
+                Comment = "Hermosa casa colonial con un patio encantador. La ubicación es perfecta para explorar San Miguel.",
+                CreatedAt = DateTime.UtcNow.AddDays(-24)
+            },
+            new()
+            {
+                Id = Guid.Parse("f4000003-0000-0000-0000-000000000003"),
+                PropertyId = p5, UserId = customerId,
+                Rating = 3,
+                Comment = "Bonito estudio pero un poco pequeño para dos personas. Buena ubicación y WiFi excelente.",
+                CreatedAt = DateTime.UtcNow.AddDays(-11)
+            },
+            new()
+            {
+                Id = Guid.Parse("f4000004-0000-0000-0000-000000000004"),
+                PropertyId = p2, UserId = customerId,
+                Rating = 5,
+                Comment = "La cabaña más acogedora que hemos visitado. La chimenea y el jacuzzi exterior son perfectos para una escapada romántica.",
+                CreatedAt = DateTime.UtcNow.AddDays(-5)
             }
         });
         await context.SaveChangesAsync();

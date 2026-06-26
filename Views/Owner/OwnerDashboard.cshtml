@@ -1,245 +1,172 @@
-@model RentingBooking.Models.User
+@model RentingBooking.Models.DashboardViewModel
 
 @{
     ViewData["Title"] = "Performance Analytics";
+    var monthLabels = Model.RevenueByMonth.Keys.ToArray();
+    var monthValues = Model.RevenueByMonth.Values.Select(v => (double)v).ToArray();
+    var defaultLabels = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    var defaultValues = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 
-@if (Model == null)
-{
-    <div class="mx-auto max-w-7xl px-4 py-8 text-center">
-        <p class="text-slate-600">No se pudo cargar la información del usuario.</p>
-        <a asp-controller="Auth" asp-action="Login" class="mt-4 inline-flex rounded-full bg-[#b41531] px-6 py-2 text-sm font-semibold text-white">Iniciar sesión</a>
-    </div>
-    return;
-}
-
-<script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 
-<div class="min-h-screen bg-[#fff4f5] text-slate-900">
-    <header class="border-b border-[#f4d7dc] bg-white/90 py-5 shadow-sm">
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-            <a asp-controller="Home" asp-action="Index" class="flex items-center gap-3 text-[#b41531] font-semibold">
-                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fde3e8] text-2xl">♥</span>
-                <span>RentingBooking</span>
-            </a>
-            <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#f0d6db] bg-white text-[#b41531] shadow-sm sm:hidden">
-                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 7h16M4 12h16M4 17h16" />
-                </svg>
-            </button>
-        </div>
-    </header>
-
-    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        @if (TempData["ErrorMessage"] != null || TempData["SuccessMessage"] != null)
+@if (TempData["ErrorMessage"] != null || TempData["SuccessMessage"] != null)
+{
+    <div class="mb-6 rounded-[28px] border px-6 py-4 text-sm shadow-sm mx-auto max-w-7xl"
+         style="border-color:#f4d7dc; background:#fff1f3; color:#7d141f;">
+        @if (TempData["ErrorMessage"] != null)
         {
-            <div class="mb-6 rounded-[28px] border px-6 py-4 text-sm shadow-sm"
-                 style="border-color:#f4d7dc; background:#fff1f3; color:#7d141f;">
-                @if (TempData["ErrorMessage"] != null)
-                {
-                    <p>@TempData["ErrorMessage"]</p>
-                }
-                @if (TempData["SuccessMessage"] != null)
-                {
-                    <p>@TempData["SuccessMessage"]</p>
-                }
-            </div>
+            <p>@TempData["ErrorMessage"]</p>
         }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <p>@TempData["SuccessMessage"]</p>
+        }
+    </div>
+}
 
-        <div class="mb-8">
-            <h1 class="text-3xl font-semibold text-slate-950">Performance Analytics</h1>
-            <p class="mt-2 text-slate-600">Review and analyze your property's performance across the platform.</p>
-        </div>
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-semibold text-slate-950">Performance Analytics</h1>
+        <p class="mt-2 text-slate-600">Review and analyze your property's performance across the platform.</p>
+    </div>
 
-        <div class="grid gap-6 rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm md:grid-cols-3 md:gap-8 md:p-8">
-            <div>
-                <label class="block text-sm font-semibold text-slate-950">Propiedad</label>
-                <select class="mt-3 w-full rounded-[16px] border border-[#f4d7dc] bg-[#fff4f5] px-4 py-3 text-sm text-slate-900 transition focus:border-[#b41531] focus:outline-none focus:ring-2 focus:ring-[#f4d7dc]">
-                    <option selected>All Properties</option>
-                    <option>Villa Serenidad Beachfront</option>
-                    <option>Mountain Retreat Cabin</option>
-                    <option>Urban Loft Downtown</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-slate-950">Rango de fechas</label>
-                <div class="mt-3 flex gap-3">
-                    <input type="date" value="2024-01-01" class="flex-1 rounded-[16px] border border-[#f4d7dc] bg-[#fff4f5] px-4 py-3 text-sm text-slate-900 transition focus:border-[#b41531] focus:outline-none focus:ring-2 focus:ring-[#f4d7dc]" />
-                    <input type="date" value="2024-12-31" class="flex-1 rounded-[16px] border border-[#f4d7dc] bg-[#fff4f5] px-4 py-3 text-sm text-slate-900 transition focus:border-[#b41531] focus:outline-none focus:ring-2 focus:ring-[#f4d7dc]" />
+    <div class="mt-8 grid gap-6 sm:grid-cols-3">
+        <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="inline-flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fde3e8] text-[#b41531]">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 11H7V13H9V11ZM9 5H7V7H9V5ZM9 17H7V19H9V17ZM13 13H11V11H13V13ZM17 13H15V11H17V13ZM19.5 3H4.5C3.12 3 2 4.12 2 5.5V18.5C2 19.88 3.12 21 4.5 21H19.5C20.88 21 22 19.88 22 18.5V5.5C22 4.12 20.88 3 19.5 3ZM20 18H4V8H20V18Z" />
+                    </svg>
                 </div>
-            </div>
-
-            <div class="flex items-end">
-                <button class="w-full rounded-full bg-[#b41531] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#991a30]">
-                    Aplicar filtros
-                </button>
-            </div>
-        </div>
-
-        <div class="mt-8 grid gap-6 sm:grid-cols-3">
-            <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
-                <div class="flex items-center gap-4">
-                    <div class="inline-flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fde3e8] text-[#b41531]">
-                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M9 11H7V13H9V11ZM9 5H7V7H9V5ZM9 17H7V19H9V17ZM13 13H11V11H13V13ZM17 13H15V11H17V13ZM19.5 3H4.5C3.12 3 2 4.12 2 5.5V18.5C2 19.88 3.12 21 4.5 21H19.5C20.88 21 22 19.88 22 18.5V5.5C22 4.12 20.88 3 19.5 3ZM20 18H4V8H20V18Z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Total Bookings</p>
-                        <p class="mt-2 text-3xl font-bold text-slate-950">1,248</p>
-                        <p class="mt-1 text-sm text-green-600">↑ 15% vs. año anterior</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
-                <div class="flex items-center gap-4">
-                    <div class="inline-flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fde3e8] text-[#b41531]">
-                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.62 6.38L10 12.62L7.38 9.62C6.98 9.23 6.35 9.23 5.96 9.62C5.57 10.01 5.57 10.64 5.96 11.03L8.62 13.62C9.01 14.01 9.64 14.01 10.03 13.62L17.38 6.38C17.77 5.99 17.77 5.36 17.38 4.97C16.99 4.58 16.36 4.58 15.97 4.97L16.62 6.38Z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Total revenue</p>
-                        <p class="mt-2 text-3xl font-bold text-slate-950">$412,850</p>
-                        <p class="mt-1 text-sm text-green-600">↑ 18.4% vs. último año</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
-                <div class="flex items-center gap-4">
-                    <div class="inline-flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fde3e8] text-[#b41531]">
-                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M11 13H13V15H11ZM7 1H17V3H7ZM19 6H5V17C5 18.1 5.9 19 7 19H17C18.1 19 19 18.1 19 17V6ZM17 17H7V9H17V17ZM9 11H11V13H9Z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Occupancy rate %</p>
-                        <p class="mt-2 text-3xl font-bold text-slate-950">84.2%</p>
-                        <p class="mt-1 text-sm text-green-600">↑ 3.7% vs. último mes</p>
-                    </div>
+                <div>
+                    <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Total Bookings</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-950">@Model.TotalBookings.ToString("N0")</p>
                 </div>
             </div>
         </div>
 
-        <div class="mt-8 grid gap-8 lg:grid-cols-3">
-            <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm lg:col-span-2">
-                <div class="mb-6 flex items-center justify-between">
-                    <h3 class="text-xl font-bold text-slate-950">Revenue Over Time</h3>
-                    <div class="flex gap-2">
-                        <button class="rounded-full bg-[#fff4f5] px-4 py-2 text-xs font-semibold text-slate-600 transition hover:bg-[#f4d7dc]">Daily</button>
-                        <button class="rounded-full bg-[#b41531] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#991a30]">Monthly</button>
-                    </div>
+        <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="inline-flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fde3e8] text-[#b41531]">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.62 6.38L10 12.62L7.38 9.62C6.98 9.23 6.35 9.23 5.96 9.62C5.57 10.01 5.57 10.64 5.96 11.03L8.62 13.62C9.01 14.01 9.64 14.01 10.03 13.62L17.38 6.38C17.77 5.99 17.77 5.36 17.38 4.97C16.99 4.58 16.36 4.58 15.97 4.97L16.62 6.38Z" />
+                    </svg>
                 </div>
-                <div style="position: relative; height: 300px;">
-                    <canvas id="revenueChart"></canvas>
-                </div>
-            </div>
-
-            <div class="rounded-[32px] border border-2 border-[#1f7a43] bg-[#165e3b] p-6 shadow-sm">
-                <div class="text-white">
-                    <h4 class="text-lg font-bold">Smart Tip</h4>
-                    <p class="mt-3 text-sm">Properties with "Instant Book" enabled see a 22% higher occupancy rate in your area last month.</p>
-                    <button class="mt-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/30">
-                        Enable Now →
-                    </button>
+                <div>
+                    <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Total revenue</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-950">@Model.TotalRevenue.ToString("C")</p>
                 </div>
             </div>
         </div>
 
-        <div class="mt-8 grid gap-6 lg:grid-cols-2">
-            <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
-                <h3 class="text-lg font-bold text-slate-950">Top Source</h3>
-                <div class="mt-6 space-y-4">
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-slate-700">Direct Search</p>
-                            <p class="text-sm font-bold text-[#b41531]">64%</p>
-                        </div>
-                        <div class="mt-2 h-2 rounded-full bg-[#f4d7dc]">
-                            <div class="h-full rounded-full bg-[#b41531]" style="width: 64%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-slate-700">Social Referral</p>
-                            <p class="text-sm font-bold text-slate-600">28%</p>
-                        </div>
-                        <div class="mt-2 h-2 rounded-full bg-[#f4d7dc]">
-                            <div class="h-full rounded-full bg-slate-400" style="width: 28%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-slate-700">Other</p>
-                            <p class="text-sm font-bold text-slate-600">8%</p>
-                        </div>
-                        <div class="mt-2 h-2 rounded-full bg-[#f4d7dc]">
-                            <div class="h-full rounded-full bg-slate-300" style="width: 8%"></div>
-                        </div>
-                    </div>
+        <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="inline-flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fde3e8] text-[#b41531]">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11 13H13V15H11ZM7 1H17V3H7ZM19 6H5V17C5 18.1 5.9 19 7 19H17C18.1 19 19 18.1 19 17V6ZM17 17H7V9H17V17ZM9 11H11V13H9Z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Occupancy rate %</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-950">@Model.OccupancyRate.ToString("F1")%</p>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
-                <h3 class="text-lg font-bold text-slate-950">Upcoming Bookings</h3>
-                <p class="mt-2 text-sm text-slate-600">3 bookings scheduled in the next 30 days</p>
-                <div class="mt-4 flex justify-end">
-                    <button class="inline-flex items-center gap-2 rounded-full bg-[#4b5563] px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM16 18H8V16H16V18ZM16 14H8V12H16V14ZM13 9V3.5L18.5 9H13Z" />
-                        </svg>
-                        Export Excel
-                    </button>
-                </div>
-                <div class="mt-6 space-y-4">
-                    @{
-                        var recentBookings = Model.Bookings?.Where(b => b.CheckInDate >= DateOnly.FromDateTime(DateTime.Now)).OrderBy(b => b.CheckInDate).Take(3).ToList() ?? new List<RentingBooking.Models.Booking>();
-                    }
-                    @if (recentBookings.Any())
+    <div class="mt-8 grid gap-8 lg:grid-cols-3">
+        <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm lg:col-span-2">
+            <div class="mb-6 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-slate-950">Revenue Over Time</h3>
+            </div>
+            <div style="position: relative; height: 300px;">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <div class="rounded-[32px] border border-2 border-[#1f7a43] bg-[#165e3b] p-6 shadow-sm">
+            <div class="text-white">
+                <h4 class="text-lg font-bold">Resumen</h4>
+                <p class="mt-3 text-sm">Tienes @Model.TotalBookings reservas en total con @Model.UpcomingBookingsCount próximas.</p>
+                <a asp-controller="Owner" asp-action="OwnerLanding" class="mt-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/30">
+                    Ver propiedades →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-2">
+        <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-950">Propiedades</h3>
+            <div class="mt-6 space-y-4">
+                @foreach (var prop in Model.Properties)
+                {
+                    <div class="flex items-center justify-between border-t border-[#f4d7dc] pt-4">
+                        <div>
+                            <p class="text-sm font-semibold text-slate-950">@prop.Title</p>
+                            <p class="text-xs text-slate-600">@prop.PricePerNight.ToString("C") / noche</p>
+                        </div>
+                        <span class="inline-flex items-center rounded-full @(prop.IsActive ? "bg-[#def7e3] text-[#1f7a43]" : "bg-[#fde2e7] text-[#b41531]") px-3 py-1 text-xs font-semibold">
+                            @(prop.IsActive ? "Activa" : "Inactiva")
+                        </span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="rounded-[32px] border border-[#f4d7dc] bg-white p-6 shadow-sm">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-slate-950">Reservas Recientes</h3>
+                <a asp-controller="Owner" asp-action="ExportBookings" class="inline-flex items-center gap-2 rounded-full bg-[#4b5563] px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM16 18H8V16H16V18ZM16 14H8V12H16V14ZM13 9V3.5L18.5 9H13Z" />
+                    </svg>
+                    Export Excel
+                </a>
+            </div>
+            <p class="mt-2 text-sm text-slate-600">@Model.UpcomingBookingsCount reservas próximas</p>
+            <div class="mt-6 space-y-4">
+                @{
+                    var upcomingBookings = Model.RecentBookings?.Where(b => b.CheckInDate >= DateOnly.FromDateTime(DateTime.Now)).OrderBy(b => b.CheckInDate).Take(5).ToList() ?? new();
+                }
+                @if (upcomingBookings.Any())
+                {
+                    @foreach (var booking in upcomingBookings)
                     {
-                        @foreach (var booking in recentBookings)
-                        {
-                            <div class="border-t border-[#f4d7dc] pt-4">
-                                <div class="flex items-start gap-3">
-                                    <img src="@(booking.Property.Images?.FirstOrDefault()?.Url ?? "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=100&q=80")" alt="@booking.Property.Title" class="h-12 w-12 rounded-[8px] object-cover" />
-                                    <div class="flex-1">
-                                        <p class="text-sm font-semibold text-slate-950">@booking.Property.Title</p>
-                                        <p class="text-xs text-slate-600">@booking.CheckInDate.ToString("dd MMM")</p>
-                                    </div>
+                        <div class="border-t border-[#f4d7dc] pt-4">
+                            <div class="flex items-start gap-3">
+                                <img src="@(booking.Property.Images?.FirstOrDefault()?.Url ?? "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=100&q=80")" alt="@booking.Property.Title" class="h-12 w-12 rounded-[8px] object-cover" />
+                                <div class="flex-1">
+                                    <p class="text-sm font-semibold text-slate-950">@booking.Property.Title</p>
+                                    <p class="text-xs text-slate-600">@booking.CheckInDate.ToString("dd MMM") - @booking.CheckOutDate.ToString("dd MMM")</p>
                                 </div>
+                                <span class="text-sm font-semibold text-[#b41531]">@booking.TotalPrice.ToString("C")</span>
                             </div>
-                        }
+                        </div>
                     }
-                    else
-                    {
-                        <p class="text-center text-sm text-slate-500">No upcoming bookings in 30 days</p>
-                    }
-                </div>
+                }
+                else
+                {
+                    <p class="text-center text-sm text-slate-500">No upcoming bookings</p>
+                }
             </div>
         </div>
-    </main>
-
-    <footer class="border-t border-[#f4d7dc] bg-[#fff4f5] py-8 px-4 text-center text-sm text-slate-600 sm:px-6 lg:px-8">
-        <div class="mx-auto max-w-7xl">
-            <p class="font-semibold text-[#b41531]">RentingBooking</p>
-            <p class="mt-2">© 2024 RentingBooking Inc.</p>
-        </div>
-    </footer>
+    </div>
 </div>
 
 <script>
+    var labels = @Html.Raw(Json.Serialize(monthLabels.Length > 0 ? monthLabels : defaultLabels));
+    var values = @Html.Raw(Json.Serialize(monthValues.Length > 0 ? monthValues : defaultValues));
+
     const ctx = document.getElementById('revenueChart').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            labels: labels,
             datasets: [{
                 label: 'Revenue',
-                data: [32000, 38000, 41000, 45000, 42000, 48000, 51000, 49000, 52000, 55000, 58000, 62000],
+                data: values,
                 backgroundColor: '#b41531',
                 borderColor: '#b41531',
                 borderRadius: 8,

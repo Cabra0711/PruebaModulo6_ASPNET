@@ -11,7 +11,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<KycVerification> KycVerifications => Set<KycVerification>();
     public DbSet<Property> Properties => Set<Property>();
     public DbSet<PropertyImage> PropertyImages => Set<PropertyImage>();
+    public DbSet<PropertyFeature> PropertyFeatures => Set<PropertyFeature>();
     public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<Review> Reviews => Set<Review>();
     public DbSet<WishListItem> WishlistItems => Set<WishListItem>();
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
 
@@ -53,17 +55,19 @@ public class ApplicationDbContext : DbContext
             e.Property(p => p.Location).IsRequired().HasMaxLength(300);
             e.Property(p => p.PricePerNight).HasColumnType("decimal(18,2)");
 
-            // Optimistic concurrency (ya lo tenías — se mantiene)
             e.Property(p => p.RowVersion).IsRowVersion();
 
-            // Índice para búsqueda pública por ubicación
             e.HasIndex(p => new { p.Location, p.IsActive });
 
-            // Owner → Properties  (1:N)
             e.HasOne(p => p.Host)
              .WithMany(u => u.Properties)
              .HasForeignKey(p => p.HostId)
              .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(p => p.Features)
+             .WithOne(f => f.Property)
+             .HasForeignKey<PropertyFeature>(f => f.PropertyId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ── PropertyImage — 1:N con Property ─────────────────────────────────
@@ -75,7 +79,32 @@ public class ApplicationDbContext : DbContext
             e.HasOne(pi => pi.Property)
              .WithMany(p => p.Images)
              .HasForeignKey(pi => pi.PropertyId)
-             .OnDelete(DeleteBehavior.Cascade); // si se borra el inmueble, se borran las fotos
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── PropertyFeature — 1:1 con Property ───────────────────────────────
+        modelBuilder.Entity<PropertyFeature>(e =>
+        {
+            e.HasKey(f => f.Id);
+            e.Property(f => f.PropertyId).IsRequired();
+        });
+
+        // ── Review — 1:N con Property, N:1 con User ─────────────────────────
+        modelBuilder.Entity<Review>(e =>
+        {
+            e.HasKey(r => r.Id);
+            e.Property(r => r.Comment).HasMaxLength(1000);
+            e.Property(r => r.Rating).IsRequired();
+
+            e.HasOne(r => r.Property)
+             .WithMany(p => p.Reviews)
+             .HasForeignKey(r => r.PropertyId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(r => r.User)
+             .WithMany()
+             .HasForeignKey(r => r.UserId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
 
         // ── Booking ───────────────────────────────────────────────────────────
@@ -86,18 +115,15 @@ public class ApplicationDbContext : DbContext
             e.Property(b => b.PricePerNightAtBooking).HasColumnType("decimal(18,2)");
             e.Property(b => b.Status).HasConversion<string>();
 
-            // Índice para consultas de disponibilidad y dashboard
             e.HasIndex(b => new { b.PropertyId, b.CheckInDate, b.CheckOutDate })
              .HasDatabaseName("IX_Booking_Property_Dates");
             e.HasIndex(b => new { b.PropertyId, b.Status });
 
-            // Booking → Property  (N:1)
             e.HasOne(b => b.Property)
              .WithMany(p => p.Bookings)
              .HasForeignKey(b => b.PropertyId)
              .OnDelete(DeleteBehavior.Restrict);
 
-            // Booking → Guest/User  (N:1)
             e.HasOne(b => b.Guest)
              .WithMany(u => u.Bookings)
              .HasForeignKey(b => b.GuestId)
@@ -109,7 +135,6 @@ public class ApplicationDbContext : DbContext
         {
             e.HasKey(w => w.Id);
 
-            // Un usuario no puede guardar el mismo inmueble dos veces
             e.HasIndex(w => new { w.UserId, w.PropertyId }).IsUnique();
 
             e.HasOne(w => w.User)

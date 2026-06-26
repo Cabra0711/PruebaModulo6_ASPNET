@@ -18,7 +18,7 @@ public class UserService : IUserService
     public async Task<ServiceResponse<User>> GetUserByIdAsync(Guid userId)
     {
         var response = new ServiceResponse<User>();
-        var user = await _dbContext.Users.Include(u => u.KycVerification).Include(u => u.Bookings).ThenInclude(b => b.Property).FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await _dbContext.Users.Include(u => u.KycVerification).Include(u => u.Bookings).ThenInclude(b => b.Property).ThenInclude(p => p.Images).FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
         {
@@ -35,7 +35,7 @@ public class UserService : IUserService
     public async Task<ServiceResponse<IEnumerable<Booking>>> GetBookingsByUserAsync(Guid userId)
     {
         var response = new ServiceResponse<IEnumerable<Booking>>();
-        var bookings = await _dbContext.Bookings.Include(b => b.Property).Where(b => b.GuestId == userId).ToListAsync();
+        var bookings = await _dbContext.Bookings.Include(b => b.Property).ThenInclude(p => p.Images).Where(b => b.GuestId == userId).ToListAsync();
 
         response.Success = true;
         response.Data = bookings;
